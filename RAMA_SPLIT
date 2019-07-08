@@ -1,39 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jul  4 10:29:50 2019
+Created on Mon Jul  8 14:50:59 2019
 
-@author: josephwallace
+@author: joe
 """
-'''
-###############################################################################
-def func(m,i):
-    l = []
-    x = 0
-    for p in linelist:
-        if x>= m:
-            if x%i == 0:
-                l.append(linelist[x])
-        #print(linelist[x])
-                x+=1
-            else:
-                x+=1
-        else:
-            x+=1
-    print(l)
-###############################################################################
-with open("rama_ic.xvg") as f:
-    linelist = f.readlines()
 
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jul  8 14:34:31 2019
 
-
-func(1,16)
-
-
-'''
+@author: joe
+"""
 ##############################################################################
-
-
 #l is number in the list, i is column, 
 def fs(l,i):
     global h
@@ -59,17 +39,18 @@ def fs(l,i):
             #print(dx[0])
             v+=1
     #print(h)
-    #print(h[0])
-    
+    #print(h[0])    
 ##############################################################################
+#FILE LENGHT#
+
 def file_len(fname):
     with open(fname) as f:
         for i, l in enumerate(f):
             pass
     print(i + 1)
 ##############################################################################
+#STRIP DATA#
 file_len("rama_ic.xvg")
-
 
 fs(40079,0)
 f1 = h
@@ -87,16 +68,39 @@ print("f2",f2[0])
 print("f3",f3[0])
 
 ##############################################################################
-import numpy as np
-import matplotlib.pyplot as plt
+#PLOT#
 
-rng = np.random.RandomState(0)
+
 x = f1
 y = f2
+z = f3
+##############################################################################
+# libraries
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import kde
+  
+# Evaluate a gaussian kde on a regular grid of nbins x nbins over data extents
+nbins=3000
+k = kde.gaussian_kde([x,y])
+xi, yi = np.mgrid[-180:180:nbins*1j, -180:180:nbins*1j]
+zi = k(np.vstack([xi.flatten(), yi.flatten()]))
+ 
+# Make the plot
+plt.pcolormesh(xi, yi, zi.reshape(xi.shape))
+plt.show()
+ 
+# Change color palette
+#plt.pcolormesh(xi, yi, zi.reshape(xi.shape), cmap=plt.cm.Greens_r)
+#plt.show()
 
-plt.xlim = (-180, 180)
-plt.ylim = (-180, 180)
-plt.scatter(x, y)
+
+
+
+
+
+
+
 
 
 
