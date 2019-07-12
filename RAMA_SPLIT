@@ -6,6 +6,7 @@ Created on Wed Jul 10 14:51:27 2019
 @author: joe
 """
 ###############################################################################
+'''
 def fm():
     global qy
     global qx
@@ -22,14 +23,15 @@ def fm():
             x+=1
             qx.append(q1[0])
             qy.append(q1[1])
+'''
 ###############################################################################
 
 ##############################################################################
 #l is number in the list, i is column, 
-def fs(l,i):
+def fs(l,i,fn):
     global h
 
-    f = open ("rama_ic.xvg", "r")
+    f = open (fn, "r")
 
     for line in f:
         data = f.readlines()
@@ -67,20 +69,30 @@ from scipy.stats import gaussian_kde
 #STRIP DATA#
 file_len("rama_ic.xvg")
 
-fs(40080,0)
+fs(40080,0,"rama_ic.xvg")
 f1 = np.array(h)
 
-fs(40080,1)
+fs(40080,1,"rama_ic.xvg")
 f2 = np.array(h)
 
-fs(40080,2)
+fs(40080,2,"rama_ic.xvg")
 
 f3 = np.array(h)
 
-print("h",h[0])
-print("f1",f1[0])
-print("f2",f2[0])
-print("f3",f3[0])
+file_len("rama_nc.xvg")
+
+fs(40080,0,"rama_nc.xvg")
+nc1 = np.array(h)
+
+fs(40080,1,"rama_nc.xvg")
+nc2 = np.array(h)
+
+fs(40080,2,"rama_nc.xvg")
+
+nc3 = np.array(h)
+
+
+
 
 
 ##############################################################################
@@ -90,37 +102,55 @@ import numpy as np
 
 img=mpimg.imread("ramaplott.jpg")
 
-imgplot = plt.imshow(img)
-print(img.shape)
+#imgplot = plt.imshow(img)
+#print(img.shape)
 ###############################################################################
 
-x = f1
-y = f2
+xic = f1
+yic = f2
 
+xnc = nc1
+ync = nc2
 # Calculate the point density
-xy = np.vstack([2*x,2*y])
-z = gaussian_kde(xy)(xy)
+xyic = np.vstack([2*xic,2*yic])
+zic = gaussian_kde(xyic)(xyic)
+
+xync = np.vstack([2*xnc,2*ync])
+znc = gaussian_kde(xync)(xync)
 
 # Sort the points by density, so that the densest points are plotted last
-idx = z.argsort()
-x, y, z = x[idx], y[idx], z[idx]
+idxi = zic.argsort()
+xic, yic, zic = xic[idxi], yic[idxi], zic[idxi]
+
+idxn = znc.argsort()
+xnc, ync, znc = xnc[idxn], ync[idxn], znc[idxn]
+
+
 
 fig, ax = plt.subplots()
-ax.scatter(x, y,c=z, s=3, edgecolor='')
+ax.scatter(xic, yic,c=zic, s=3, edgecolor='')
 plt.axhline(0, color="black")
 plt.axvline(0, color="black")
+plt.title("1HQJ, With Cystine")
+plt.ylabel(r'$\psi$')
+plt.xlabel(r'$\phi$')
+"""
+fig, ax = plt.subplots()
+ax.scatter(xnc, ync,c=znc, s=3, edgecolor='')
+plt.axhline(0, color="black")
+plt.axvline(0, color="black")
+plt.title("1HQJ, No Cystine")
+plt.ylabel(r'$\psi$')
+plt.xlabel(r'$\phi$')
+"""
 
 #plt.imshow(img,extent=(-180, 180, -180, 180))
 
-plt.savefig("RamachandranPLot_alldata.png", transparent=True)
+plt.savefig("RamachandranPLot_nc.png", transparent=True)
 '''
 plt.hist2d(x, y, (1000, 1000), cmap=plt.cm.jet)
 plt.colorbar()
 '''
-
-
-
-
 
 
 
