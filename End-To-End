@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jul 17 13:43:19 2019
+
+@author: joe
+"""
+###############################################################################
+
+##############################################################################
+#l is number in the list
+#v = the line number
+# i = the column
+
+def fs(l,i,fn):
+    global h
+    h = []
+    f = open (fn, "r")
+
+    for line in f:
+        data = f.readlines()
+
+
+    h = []
+    v = 0
+    while v < l:
+        if i<2:
+            
+            dx = data[v].split()
+            h.append(dx[i])
+            #^for columns 0 and 1
+            v+=1
+        else:
+            #^for columns 2
+            #print(dx[0])
+            v+=1
+    #print(h)
+    #print(h[0])    
+##############################################################################
+import numpy as np
+import matplotlib.pyplot as plt
+
+filen = "md1.xvg"
+#STRIP DATA#
+#file_len(filen)
+
+fs(1000,0,filen)
+f1 = np.array(h)
+
+fs(1000,1,filen)
+f2 = np.array(h)
+
+print(f1)
+print(f2)
+
+plt.plot(f1, f2)
+
+
