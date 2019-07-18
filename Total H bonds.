@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jul 17 21:20:10 2019
+
+@author: josephwallace
+"""
+
+#l is number in the list
+#v = the line number
+# i = the column
+
+def fs(l,i,fn):
+    global h
+    h = []
+    f = open (fn, "r")
+
+    for line in f:
+        data = f.readlines()
+
+
+    h = []
+    v = 0
+    while v < l:
+        if i<2:
+            
+            dx = data[v].split()
+            h.append(float(dx[i]))
+            #^for columns 0 and 1
+            v+=1
+        else:
+            #^for columns 2
+            #print(dx[0])
+            v+=1
+    #print(h)
+    #print(h[0])    
+##############################################################################
+
+def file_len(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    print(i + 1)
+
+
+file_len("1hqjEC_hnum.xvg")
+file_len("1hqjNC_hnum.xvg")
+##############################################################################
+import numpy as np
+import matplotlib.pyplot as plt
+
+filen = "1hqjEC_hnum.xvg"
+#STRIP DATA#
+#file_len(filen)
+
+fs(2600,0,filen)
+icx = np.array(h)
+
+fs(2600,1,filen)
+icy = np.array(h)
+
+
+filen = "1hqjNC_hnum.xvg"
+#STRIP DATA#
+#file_len(filen)
+
+fs(2600,0,filen)
+ncx = np.array(h)
+
+fs(2600,1,filen)
+ncy = np.array(h)
+
+
+icl = plt.plot(icx, icy, linewidth=0.5, label='With Cysteine')
+ncl = plt.plot(ncx, ncy, linewidth=0.5, label='Without Cysteine')
+plt.legend(loc='lower right')
+plt.xlabel("Simulation Time / ns")
+plt.ylabel("Number of Hydrogen bonds")
+
+plt.savefig("NHbonds_both.png", dpi=1000)
