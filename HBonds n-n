@@ -1,0 +1,128 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jul 17 21:33:45 2019
+
+@author: josephwallace
+"""
+
+#l is number in the list
+#v = the line number
+# i = the column
+
+
+
+def fs(l,i,fn):
+    global h
+    h = []
+    f = open (fn, "r")
+
+    for line in f:
+        data = f.readlines()
+        
+
+    h = []
+    v = 0
+    while v < l:
+        dx = data[v].split()
+        h.append(float(dx[i]))
+        #^for columns 0 and 1
+        v+=1
+    else:
+        #^for columns 2
+        #print(dx[0])
+        v+=1
+    #print(h)
+    #print(h[0])    
+##############################################################################
+
+def file_len(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    print(i + 1)
+
+
+file_len("1hqjEC_hx.xvg")
+file_len("1hqjNC_hx.xvg")
+##############################################################################
+import numpy as np
+import matplotlib.pyplot as plt
+
+###############################################################################
+
+fs(2600,0,"1hqjEC_hx.xvg")
+nx1 = np.array(h)
+
+fs(2600,1,"1hqjEC_hx.xvg")
+ny0 = np.array(h)
+
+fs(2600,2,"1hqjEC_hx.xvg")
+ny1 = np.array(h)
+
+fs(2600,3,"1hqjEC_hx.xvg")
+ny2 = np.array(h)
+
+fs(2600,4,"1hqjEC_hx.xvg")
+ny3 = np.array(h)
+
+fs(2600,5,"1hqjEC_hx.xvg")
+ny4 = np.array(h)
+
+fs(2600,6,"1hqjEC_hx.xvg")
+ny5 = np.array(h)
+
+fs(2600,7,"1hqjEC_hx.xvg")
+ny6 = np.array(h)
+
+
+pn0 = plt.plot(nx1,ny0, linewidth=0.5, label="N n-n")
+pn1 = plt.plot(nx1,ny1, linewidth=0.5, label="N n-n+1")
+pn2 = plt.plot(nx1,ny2, linewidth=0.5, label="N n-n+2")
+pn3 = plt.plot(nx1,ny3, linewidth=0.5, label="N n-n+3")
+pn4 = plt.plot(nx1,ny4, linewidth=0.5, label="N n-n+4")
+pn5 = plt.plot(nx1,ny5, linewidth=0.5, label="N n-n+5")
+pn6 = plt.plot(nx1,ny6, linewidth=0.5, label="N n-n>6")
+###############################################################################
+
+fs(2600,0,"1hqjNC_hx.xvg")
+ix1 = np.array(h)
+
+fs(2600,1,"1hqjNC_hx.xvg")
+iy0 = np.array(h)
+
+fs(2600,2,"1hqjNC_hx.xvg")
+iy1 = np.array(h)
+
+fs(2600,3,"1hqjNC_hx.xvg")
+iy2 = np.array(h)
+
+fs(2600,4,"1hqjNC_hx.xvg")
+iy3 = np.array(h)
+
+fs(2600,5,"1hqjNC_hx.xvg")
+iy4 = np.array(h)
+
+fs(2600,6,"1hqjNC_hx.xvg")
+iy5 = np.array(h)
+
+fs(2600,7,"1hqjNC_hx.xvg")
+iy6 = np.array(h)
+
+pn0 = plt.plot(ix1,iy0, linewidth=0.5, label="I n-n")
+pn1 = plt.plot(ix1,iy1, linewidth=0.5, label="I n-n+1")
+pn2 = plt.plot(ix1,iy2, linewidth=0.5, label="I n-n+2")
+pn3 = plt.plot(ix1,iy3, linewidth=0.5, label="I n-n+3")
+pn4 = plt.plot(ix1,iy4, linewidth=0.5, label="I n-n+4")
+pn5 = plt.plot(ix1,iy5, linewidth=0.5, label="I n-n+5")
+pn6 = plt.plot(ix1,iy6, linewidth=0.5, label="I n-n>6")
+
+#icl = plt.plot(icx, icy, linewidth=0.5, label='With Cysteine')
+#ncl = plt.plot(ncx, ncy, linewidth=0.5, label='Without Cysteine')
+
+plt.legend(bbox_to_anchor=(1.04,1), loc="upper left")
+#plt.legend(loc='lower right')
+plt.xlabel("Simulation Time / ns")
+plt.ylabel("Number of Hydrogen bonds")
+plt.title("1HQJ")
+plt.savefig("hx_both.png", dpi=1000)
