@@ -1,0 +1,57 @@
+'''
+This file is an example code created to first copy the original npt.mdp file
+(although filename can easily be chnage scuh that it works for nvt and md mdp files)
+and create a new file numbered by the index.mdp (e.g. 1.mdp, 2.mdp ...) and it will do
+this for x files. It will then read each copied file, find 300 which is the tempertature
+of the original file and replace it with each temperature in the list "temp". 
+
+One issue that could occur, although is not an issue yet, is that 300 could be used elsewhere
+in the original mdp file. Although this could easily be altered to only replace the temperature
+line by changing:
+ 
+print(line.replace('300', n), end='') > print(line.replace('ref_t                   = 300   300', n), end='')
+
+
+'''
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Sep 19 16:31:41 2019
+
+@author: joe
+"""
+ 
+from shutil import copyfile as cp
+import fileinput
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+temp = [300.00, 300.75, 301.51, 302.27, 303.04, 303.80, 304.57, 305.33, 
+        306.10, 306.87, 307.65, 308.42, 309.20, 309.97, 310.75, 311.53,
+        312.31, 313.10, 313.88, 314.67, 315.46, 316.25, 317.04, 317.84,
+        318.63, 319.43, 320.23, 321.03, 321.83, 322.63, 323.44, 324.25,
+        325.06, 325.87, 326.68, 327.49, 328.31, 329.13, 329.95, 330.77,
+        331.59, 332.42, 333.24, 334.07, 334.90, 335.73, 336.57, 337.40,
+        338.24, 339.08, 339.92, 340.76, 341.60, 342.45, 343.30, 344.15,
+        345.00, 345.85, 346.71, 347.56, 348.42, 349.28, 350.14, 351.01,
+        351.87, 352.74, 353.61, 354.48, 355.36, 356.23, 357.11, 357.99,
+        358.87, 359.76, 360.64, 361.53, 362.42, 363.31, 364.20, 365.09,
+        365.99, 366.89, 367.79, 368.69, 369.59, 370.50, 371.40, 372.31,
+        373.23, 374.14, 375.05, 375.97, 376.89, 377.81, 378.74, 379.66,
+        380.59, 381.52, 382.45, 383.38, 384.32, 385.25, 386.19, 387.13,
+        388.07, 389.02, 389.97, 390.92, 391.87, 392.81, 393.77, 394.72,
+        395.68, 396.65, 397.61, 398.57, 399.54, 400.00 ]
+
+x = 118
+c = 1
+t = c-1
+
+
+while c <x:
+    cp('npt.mdp', '%s.mdp' %(c))
+    filename = '%s.mdp' %(c)
+    with fileinput.FileInput(filename, inplace=True, backup='.bak') as file:
+        
+        n = str(temp[t])
+        for line in file:
+            print(line.replace('300', n), end='')      
+    c+=1
+    t+=1
