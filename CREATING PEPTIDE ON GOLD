@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Oct 17 20:02:13 2019
+
+@author: joe
+"""
+'''
+The below script, so far, creates a spiral of points on a sphere. Plots the points in 3d then attempts to create a pdb file for 
+opening with Pymol/VMD veiwing of the points. The points will be the points where the cys from each peptide is placed.
+
+
+
+
+
+#SPHERICAL FROM: Kogan, Jonathan (2017) "A New Computationally Efficient 
+#Method for Spacing n Points on a Sphere," Rose-Hulman Undergraduate Mathematics
+#Journal: Vol. 18 : Iss. 2 , Article 5.
+#Available at: https://scholar.rose-hulman.edu/rhumj/vol18/iss2/5 
+###############################################################################
+
+###############################################################################
+
+#MESH PART
+import math
+def spherical_coordinate(x,y):
+    return [math.cos(x) * math.cos(y),
+            math.sin(x) * math.cos(y), math.sin(y)]
+    
+def NX(n, x):
+    pts=[]
+    start = (-1. + 1. / (n - 1.) )
+    increment = (2. - 2. / (n -1.)) / (n -1.)
+    for j in range(0, n):
+        s = start + j * increment 
+        pts.append(
+        spherical_coordinate(
+        s * x, math.pi / 2. *
+        math.copysign(1, s) *
+        (1. - math.sqrt(1. -abs(s)))
+        ))
+        
+    return pts
+
+def generate_points(n):
+    return NX(n, 0.1 + 1.2 * n)
+
+#SPLIT TO XYZ
+def xyz(n):
+    m=[]
+    c = 0
+    
+    while c < 3:
+        for v in genplot:
+            m.append(genplot[c][n])
+            c+=1
+            
+    return(m)        
+
+
+###############################################################################
+
+#RUNNING THE ABOVE
+    
+(spherical_coordinate(100,560))
+(NX(300,56))
+
+genplot = (generate_points(300))
+
+
+x = xyz(0)
+print(x)
+
+y = xyz(1)
+print(y)
+
+z = xyz(2)
+print(z)
+
+
+###############################################################################
+
+#PLOTTING THE DATA
+
+import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
+
+
+ax = plt.axes(projection='3d')
+
+ax.scatter3D(x,y,z, c = z, cmap = "Greens")
+
+
+
+###############################################################################
+
+#CREATING A PDB/GRO FILE
+c = 0
+
+for v in genplot:
+    q = c+1
+    p=str(q)
+    
+    i = (genplot[c])
+    x = str(i[0]*10)
+    y = str(i[1]*10)
+    z = str(i[2]*10)
+    f = open("test.pdb", "a")
+    #lm = (x, "\t", y, "\t", z, "\n")
+    f.write(p+'\t')
+    
+    f.write("AU"+'\t')
+    f.write("AU2"+'\t')
+    f.write(p+'\t')
+    f.write(x+'\t')
+    f.write(y+'\t')
+    f.write(z+'\t')
+    f.write("0"+'\t')
+    f.write("0"+'\t')
+    f.write("0"+'\n')
+    f.close
+    c +=1
+
+###############################################################################
