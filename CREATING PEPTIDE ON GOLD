@@ -118,10 +118,10 @@ def theta():
 # This section is not yet working. I first need to extract each value from the peptide.gro file, 
 # as this will allow me to change x,y,z for each peptide (Extract). 
 # First translate each by r+0.25 along x (Translation), then rotate around x, y,z using:
-# x1=x0costheta-y0sintheta, y1=yocostheta + xosintheta (rotate around z)
-# x2=x1costheta-z0sintheta, z1=zocostheta + x1sintheta (rotate around y)
-# z2=z1costhetha-y1sintheta, y2=y1coztheta - z2sintheta (roatate around x)
-#ALTERNATIVELY MAKE A MATRIX?
+# x1 = rcostheta, y1 =rsintheta
+# x2 = rcostheta, z1 = rsintheta
+# z2 = rcostheta, y2 = rsintheta
+# Where theta is the angles calculated above.
 
 def Extract():
 
