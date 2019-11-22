@@ -1,124 +1,152 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Created on Thu Oct 17 20:02:13 2019
-
 @author: joe
+
 """
 '''
-The below script, so far, creates a spiral of points on a sphere. Plots the points in 3d then attempts to create a pdb file for 
+The below script, so far, creates a spiral of points on a sphere. Plots the points in 3d then attempts to create a pdb file for
 opening with Pymol/VMD veiwing of the points. The points will be the points where the cys from each peptide is placed.
-
-
-
-
-
-#SPHERICAL FROM: Kogan, Jonathan (2017) "A New Computationally Efficient 
+#SPHERICAL FROM: Kogan, Jonathan (2017) "A New Computationally Efficient
 #Method for Spacing n Points on a Sphere," Rose-Hulman Undergraduate Mathematics
 #Journal: Vol. 18 : Iss. 2 , Article 5.
-#Available at: https://scholar.rose-hulman.edu/rhumj/vol18/iss2/5 
+#Available at: https://scholar.rose-hulman.edu/rhumj/vol18/iss2/5
+'''
+###############################################################################
 ###############################################################################
 
-###############################################################################
-
-#MESH PART
 import math
+
+#Creates the spherical lines
 def spherical_coordinate(x,y):
     return [math.cos(x) * math.cos(y),
             math.sin(x) * math.cos(y), math.sin(y)]
-    
+
+#Creates the actual N points    
 def NX(n, x):
     pts=[]
     start = (-1. + 1. / (n - 1.) )
     increment = (2. - 2. / (n -1.)) / (n -1.)
     for j in range(0, n):
-        s = start + j * increment 
+        s = start + j * increment
         pts.append(
         spherical_coordinate(
         s * x, math.pi / 2. *
         math.copysign(1, s) *
         (1. - math.sqrt(1. -abs(s)))
         ))
-        
+       
     return pts
 
+#Generates complete set of points in a list of lists
 def generate_points(n):
     return NX(n, 0.1 + 1.2 * n)
 
-#SPLIT TO XYZ
+#Split the generated points into XYZ
 def xyz(n):
     m=[]
     c = 0
-    
+   
     while c < 3:
         for v in genplot:
             m.append(genplot[c][n])
             c+=1
-            
-    return(m)        
+           
+    return(m)
+    
+    x = xyz(0)
+    y = xyz(1)
+    z = xyz(2)
 
 
+#Define the xyz points to move cys to.
+def points():
+    size = 14.25
+    FileName = "TEST \n"
+    FileLen = len(x)
+    
+    #xd = max(x)
+    #yd = max(y)
+    #zd = max(z)
+    
+    c=0
+    o = 0
+    with open ("testpriems.gro", "a") as f:
+        f.write(FileName)
+        f.write("%5s \n" %(FileLen))
+        for v in x:
+            print(v)  
+            i = (genplot[c])
+            xa = ((i[0]/2)*size)
+            ya = ((i[1]/2)*size)
+            za = ((i[2]/2)*size)
+            q = c+1
+            p=(q)  
+            f.write("%5d%-5s%5s%5d%8.3f%8.3f%8.3f%8.4f%8.4f%8.4f \n" % (p, "AU2", "AUB", p, xa, ya, za, o, o , o))
+            c+=1  
+#Defining theta for rotation around x,y z.
+def theta():            
+    d = 2.31
+    
+    c=0
+    thetasxy = []
+    thetaszx = []
+    thetasyz = []
+
+    
+    for p in genplot:
+            i = (genplot[c])
+            xa = ((i[0]/2)*size)
+            ya = ((i[1]/2)*size)
+            za = ((i[2]/2)*size)
+            thetaxy = math.atan(xa/ya)
+            thetasxy.append(thetaxy)
+            thetazx = math.atan(za/xa)
+            thetaszx.append(thetazx)
+            thetayz = math.atan(ya/za)
+            thetasyz.append(thetaxy)
+            c+=1
+           
+    thetas = (thetasxy, thetaszx, thetasyz)        
+    
+    print("THIS IS THETAS",thetasxy)
+
+####NOTE:
+# This section is not yet working. I first need to extract each value from the peptide.gro file, 
+# as this will allow me to change x,y,z for each peptide (Extract). 
+# First translate each by r+0.25 along x (Translation), then rotate around x, y,z using:
+# x1=x0costheta-y0sintheta, y1=yocostheta + xosintheta (rotate around z)
+# x2=x1costheta-z0sintheta, z1=zocostheta + x1sintheta (rotate around y)
+# z2=z1costhetha-y1sintheta, y2=y1coztheta - z2sintheta (roatate around x)
+#ALTERNATIVELY MAKE A MATRIX?
+
+def Extract():
+
+    with open ("testpriems.gro", "a") as f:
+        with open ("peptide.gro", "r") as r:
+            c = 0
+            for line in r:
+                if c <1:
+                    continue
+                    c+=1
+                else:
+                    contents = r.read()
+                    #print(contents)
+                    lx = contents.split()
+                    print(lx)
+                    c+=1
 ###############################################################################
-
 #RUNNING THE ABOVE
-    
-(spherical_coordinate(100,560))
-(NX(300,56))
+   
+(spherical_coordinate(1,1))
+(NX(900,1))
+genplot = (generate_points(900))
+points()
+theta()
 
-genplot = (generate_points(300))
-
-
-x = xyz(0)
-print(x)
-
-y = xyz(1)
-print(y)
-
-z = xyz(2)
-print(z)
+Translation()
 
 
-###############################################################################
-
-#PLOTTING THE DATA
-
-import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
-
-
-ax = plt.axes(projection='3d')
-
-ax.scatter3D(x,y,z, c = z, cmap = "Greens")
-
-
-
-###############################################################################
-
-#CREATING A PDB/GRO FILE
-c = 0
-
-for v in genplot:
-    q = c+1
-    p=str(q)
-    
-    i = (genplot[c])
-    x = str(i[0]*10)
-    y = str(i[1]*10)
-    z = str(i[2]*10)
-    f = open("test.pdb", "a")
-    #lm = (x, "\t", y, "\t", z, "\n")
-    f.write(p+'\t')
-    
-    f.write("AU"+'\t')
-    f.write("AU2"+'\t')
-    f.write(p+'\t')
-    f.write(x+'\t')
-    f.write(y+'\t')
-    f.write(z+'\t')
-    f.write("0"+'\t')
-    f.write("0"+'\t')
-    f.write("0"+'\n')
-    f.close
-    c +=1
-
-###############################################################################
