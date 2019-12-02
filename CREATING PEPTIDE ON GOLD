@@ -48,15 +48,16 @@ def generate_points(n):
 
 #Split the generated points into XYZ
 def xyz(n):
-    m=[]
+    global POINTS
+    POINTS=[]
     c = 0
    
     while c < 3:
         for v in genplot:
-            m.append(genplot[c][n])
+            POINTS.append(genplot[c][n])
             c+=1
            
-    return(m)
+    return(POINTS)
     x = xyz(0)
     return(x)
     y = xyz(1)
@@ -98,10 +99,12 @@ def theta():
 
     
     c=0
+    global thetasxy
+    global thetaszx
+    global thetasyz
     thetasxy = []
     thetaszx = []
     thetasyz = []
-
     
     for p in genplot:
             i = (genplot[c])
@@ -115,7 +118,7 @@ def theta():
             thetayz = math.atan(ya/za)
             thetasyz.append(thetaxy)
             c+=1
-           
+    global thetas      
     thetas = (thetasxy, thetaszx, thetasyz)        
     
     print("THIS IS THETAS",thetasxy)
@@ -225,12 +228,54 @@ z = xyz(2)
 points()
 theta()
 
-split(5)
+split(302)
 add_pep()
-
+pep_len("peptide.gro")
 
 ###############################################################################
-#PEPTIDE PART
+
+print ("points....",genplot[1])
+
+xfinal = []
+yfinal = []
+zfinal = []
+
+c1 = 0
+for n in genplot:
+    c2 = 0
+    for line in "peptide.gro":
+        split(302)
+
+        xold = float(X_Coor[c])
+        yold = float(Y_Coor[c])
+        zold = float(Z_Coor[c])
+    
+    
+    #Rotate around z
+        xnew = (xold*math.cos(thetasxy[c]))-(yold*math.sin(thetasxy[c]))
+        ynew = (xold*math.sin(thetasxy[c]))+(yold*math.cos(thetasxy[c]))
+        znew = zold
+        
+        xold=xnew
+        yold=ynew
+        zold=znew
+    #Rotate around y
+        xnew = (xold*math.cos(thetaszx[c]))+(zold*math.sin(thetaszx[c]))
+        znew = (zold*math.cos(thetaszx[c]))-(xold*math.sin(thetaszx[c]))
+        ynew = yold
+        
+        xold=xnew
+        yold=ynew
+        zold=znew
+    #Rotate around x
+        ynew = (yold*math.cos(thetasyz[c]))-(zold*math.sin(thetasyz[c]))
+        znew = (yold*math.sin(thetasyz[c]))+(zold*math.cos(thetasyz[c]))
+        xnew = xold
+        
+        
+    c2+=1
+c1+=1
+
 
 
 
