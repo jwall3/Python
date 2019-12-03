@@ -78,7 +78,7 @@ def points():
     
     c=0
     o = 0
-    with open ("testpriems.gro", "a") as f:
+    with open ("testpriems777.gro", "a") as f:
         f.write(FileName)
         f.write("%5s \n" %(FileLen))
         for v in x:
@@ -164,7 +164,7 @@ def fs(leng,column,pfn):
 # a dictionary of lists with the name as the key.
 def split(leng):
     pfn = "peptide.gro"
-    pep_len(pfn)    
+    #pep_len(pfn)    
     
     peptide_gro = {}
     
@@ -189,7 +189,7 @@ def split(leng):
     
     
 def add_pep():
-    with open ("testpriems.gro", "a") as f:
+    with open ("testpriems777.gro", "a") as f:
         sp=(len(X_Coor))
         c = 0
         while c < sp: 
@@ -215,8 +215,8 @@ def add_pep():
 ##############################################################################
 
 #RUNNING THE ABOVE
-size = 14.25
-d = 2.31
+size = 14.00
+d = 0.231
 
 
 (spherical_coordinate(1,1))
@@ -230,52 +230,79 @@ theta()
 
 split(302)
 add_pep()
-pep_len("peptide.gro")
+#pep_len("peptide.gro")
 
 ###############################################################################
 
-print ("points....",genplot[1])
+print ("points....",genplot[0])
+
+print(X_Coor)
+print(Y_Coor)
+print(Z_Coor)
+
+
+
 
 xfinal = []
 yfinal = []
 zfinal = []
 
+
+#x = [1]
 c1 = 0
-for n in genplot:
+for p in x:
     c2 = 0
-    for line in "peptide.gro":
-        split(302)
-
-        xold = float(X_Coor[c])
-        yold = float(Y_Coor[c])
-        zold = float(Z_Coor[c])
+    for v in X_Coor:
+        with open ("testpriems777.gro", "a") as f:
+            #split(302)
     
-    
-    #Rotate around z
-        xnew = (xold*math.cos(thetasxy[c]))-(yold*math.sin(thetasxy[c]))
-        ynew = (xold*math.sin(thetasxy[c]))+(yold*math.cos(thetasxy[c]))
-        znew = zold
+            xold = float(X_Coor[c2])
+            yold = float(Y_Coor[c2])
+            zold = float(Z_Coor[c2])
         
-        xold=xnew
-        yold=ynew
-        zold=znew
-    #Rotate around y
-        xnew = (xold*math.cos(thetaszx[c]))+(zold*math.sin(thetaszx[c]))
-        znew = (zold*math.cos(thetaszx[c]))-(xold*math.sin(thetaszx[c]))
-        ynew = yold
+        #Translate along x.
+            xnew = (xold-((size+d)/2))
+            xold = xnew
+        #Rotate around z
+            xnew = (xold*math.cos(thetasxy[c1]))-(yold*math.sin(thetasxy[c1]))
+            ynew = (xold*math.sin(thetasxy[c1]))+(yold*math.cos(thetasxy[c1]))
+            znew = zold
+            
+            xold=xnew
+            yold=ynew
+            zold=znew
+        #Rotate around y
+            xnew = (xold*math.cos(thetaszx[c1]))+(zold*math.sin(thetaszx[c1]))
+            znew = (zold*math.cos(thetaszx[c1]))-(xold*math.sin(thetaszx[c1]))
+            ynew = yold
+            
+            xold=xnew
+            yold=ynew
+            zold=znew
+        #Rotate around x
+            ynew = (yold*math.cos(thetasyz[c1]))-(zold*math.sin(thetasyz[c1]))
+            znew = (yold*math.sin(thetasyz[c1]))+(zold*math.cos(thetasyz[c1]))
+            xnew = xold
+         
+        #Appened to the list 
         
-        xold=xnew
-        yold=ynew
-        zold=znew
-    #Rotate around x
-        ynew = (yold*math.cos(thetasyz[c]))-(zold*math.sin(thetasyz[c]))
-        znew = (yold*math.sin(thetasyz[c]))+(zold*math.cos(thetasyz[c]))
-        xnew = xold
-        
-        
-    c2+=1
-c1+=1
+            xfinal.append(xnew)
+            yfinal.append(ynew)
+            zfinal.append(znew)
 
 
+            PN = (Pep_Name[c2])
+            ANa = (Atom_Name[c2])
+            ANu = (Atom_Number[c2])
+            x = float(xnew)
+            y = float(ynew)            
+            z = float(znew)            
+            f.write("%8s%7s%5d%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z))   
+                
+        c2+=1
+    c1+=1
 
+print("XFINAL",xfinal)
+print("C1=", c1)
+print("C2=", c2)
 
