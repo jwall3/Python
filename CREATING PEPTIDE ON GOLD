@@ -5,7 +5,6 @@
 """
 Created on Thu Oct 17 20:02:13 2019
 @author: joe
-
 """
 '''
 The below script, so far, creates a spiral of points on a sphere. Plots the points in 3d then attempts to create a pdb file for
@@ -70,8 +69,8 @@ def xyz(n):
 def points():
 
     FileName = "TEST \n"
-    FileLen = len(x)
-    
+    #FileLen = len(x)
+    FileLen = 272101
     #xd = max(x)
     #yd = max(y)
     #zd = max(z)
@@ -251,7 +250,7 @@ zfinal = []
 #x = [1]
 c1 = 0
 for p in x:
-    c2 = 0
+    c2 = -1
     for v in X_Coor:
         with open ("testpriems777.gro", "a") as f:
             #split(302)
@@ -261,7 +260,7 @@ for p in x:
             zold = float(Z_Coor[c2])
         
         #Translate along x.
-            xnew = (xold-((size+d)/2))
+            xnew = (xold+((size)/2))
             xold = xnew
         #Rotate around z
             xnew = (xold*math.cos(thetasxy[c1]))-(yold*math.sin(thetasxy[c1]))
@@ -275,15 +274,16 @@ for p in x:
             xnew = (xold*math.cos(thetaszx[c1]))+(zold*math.sin(thetaszx[c1]))
             znew = (zold*math.cos(thetaszx[c1]))-(xold*math.sin(thetaszx[c1]))
             ynew = yold
-            
+                     
             xold=xnew
             yold=ynew
             zold=znew
         #Rotate around x
+
             ynew = (yold*math.cos(thetasyz[c1]))-(zold*math.sin(thetasyz[c1]))
             znew = (yold*math.sin(thetasyz[c1]))+(zold*math.cos(thetasyz[c1]))
             xnew = xold
-         
+            
         #Appened to the list 
         
             xfinal.append(xnew)
@@ -302,7 +302,9 @@ for p in x:
         c2+=1
     c1+=1
 
+with open ("testpriems777.gro", "a") as f:
+    f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))
+
 print("XFINAL",xfinal)
 print("C1=", c1)
 print("C2=", c2)
-
