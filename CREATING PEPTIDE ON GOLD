@@ -76,7 +76,6 @@ def points():
     #zd = max(z)
     
     c=0
-    o = 0
     with open ("testpriems777.gro", "a") as f:
         f.write(FileName)
         f.write("%5s \n" %(FileLen))
@@ -90,6 +89,7 @@ def points():
             p=(q)  
             f.write("%5d%-5s%5s%5d%8.3f%8.3f%8.3f \n" % (p, "AU2", "AUB", p, xa, ya, za))
             c+=1  
+            print("HEREEE",xa,ya,za)
     global linenum
     linenum = c
     print(linenum)
@@ -110,17 +110,17 @@ def theta():
             xa = ((i[0]/2)*size)
             ya = ((i[1]/2)*size)
             za = ((i[2]/2)*size)
-            thetaxy = math.atan(xa/ya)
+            thetaxy = math.atan2(ya,xa)
             thetasxy.append(thetaxy)
-            thetazx = math.atan(za/xa)
+            thetazx = math.atan2(za,xa)
             thetaszx.append(thetazx)
-            thetayz = math.atan(ya/za)
-            thetasyz.append(thetaxy)
+            thetayz = math.atan2(ya,za)
+            thetasyz.append(thetayz)
             c+=1
     global thetas      
     thetas = (thetasxy, thetaszx, thetasyz)        
     
-    print("THIS IS THETAS",thetasxy)
+    #print("THIS IS THETAS",thetasxy)
 
 
 
@@ -133,7 +133,7 @@ def pep_len(pfn):
         for leng, l in enumerate(f):
             pass
 
-    print(leng)
+    #print(leng)
 
 #A function to open a file = pfn. Split each column into a list with length leng
 # depending on value of column (0-6 in pfn), it is saved to "variable"
@@ -199,10 +199,10 @@ def add_pep():
             x = float(X_Coor[c])
             y = float(Y_Coor[c])            
             z = float(Z_Coor[c])            
-            print(PN)
-            print(ANa)
-            print(ANu)
-            print(x,y,z)
+            #print(PN)
+            #print(ANa)
+            #print(ANu)
+            #print(x,y,z)
             
             
             
@@ -233,11 +233,11 @@ add_pep()
 
 ###############################################################################
 
-print ("points....",genplot[0])
+#print ("points....",genplot[0])
 
-print(X_Coor)
-print(Y_Coor)
-print(Z_Coor)
+#print(X_Coor)
+#print(Y_Coor)
+#print(Z_Coor)
 
 
 
@@ -246,65 +246,77 @@ xfinal = []
 yfinal = []
 zfinal = []
 
+thetas = (thetasxy, thetaszx, thetasyz)  
+
+#thetasxy = [3.141]
+#thetaszx = [0]
+#thetasyz = [0]
+
 
 #x = [1]
 c1 = 0
 for p in x:
-    c2 = -1
-    for v in X_Coor:
-        with open ("testpriems777.gro", "a") as f:
-            #split(302)
-    
-            xold = float(X_Coor[c2])
-            yold = float(Y_Coor[c2])
-            zold = float(Z_Coor[c2])
+    #while c1<1:
+        c2 = 0
+        for v in X_Coor:
+            with open ("testpriems777.gro", "a") as f:
+                #split(302)
         
-        #Translate along x.
-            xnew = (xold+((size)/2))
-            xold = xnew
-        #Rotate around z
-            xnew = (xold*math.cos(thetasxy[c1]))-(yold*math.sin(thetasxy[c1]))
-            ynew = (xold*math.sin(thetasxy[c1]))+(yold*math.cos(thetasxy[c1]))
-            znew = zold
+                xold = float(X_Coor[c2])
+                yold = float(Y_Coor[c2])
+                zold = float(Z_Coor[c2])
             
-            xold=xnew
-            yold=ynew
-            zold=znew
-        #Rotate around y
-            xnew = (xold*math.cos(thetaszx[c1]))+(zold*math.sin(thetaszx[c1]))
-            znew = (zold*math.cos(thetaszx[c1]))-(xold*math.sin(thetaszx[c1]))
-            ynew = yold
-                     
-            xold=xnew
-            yold=ynew
-            zold=znew
-        #Rotate around x
-
-            ynew = (yold*math.cos(thetasyz[c1]))-(zold*math.sin(thetasyz[c1]))
-            znew = (yold*math.sin(thetasyz[c1]))+(zold*math.cos(thetasyz[c1]))
-            xnew = xold
-            
-        #Appened to the list 
-        
-            xfinal.append(xnew)
-            yfinal.append(ynew)
-            zfinal.append(znew)
-
-
-            PN = (Pep_Name[c2])
-            ANa = (Atom_Name[c2])
-            ANu = (Atom_Number[c2])
-            x = float(xnew)
-            y = float(ynew)            
-            z = float(znew)            
-            f.write("%8s%7s%5d%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z))   
+            #Translate along x.
+                xnew = (xold+((size)/2))
+                xold = xnew
                 
-        c2+=1
-    c1+=1
+            #Rotate around z
+                xnew = (xold*math.cos(thetasxy[c1]))-(yold*math.sin(thetasxy[c1]))
+                ynew = (xold*math.sin(thetasxy[c1]))+(yold*math.cos(thetasxy[c1]))
+                znew = zold
+                 
+                xold=xnew
+                yold=ynew
+                zold=znew
+                
+            #Rotate around y
+                xnew = (xold*math.cos(thetaszx[c1]))-(zold*math.sin(thetaszx[c1]))
+                znew = (xold*math.sin(thetaszx[c1]))+(zold*math.cos(thetaszx[c1]))
+                ynew = yold
+                
+                xold=xnew
+                yold=ynew
+                zold=znew
+                
+            #Rotate around x
+               
+                ynew = (yold*math.cos(thetasyz[c1]))-(zold*math.sin(thetasyz[c1]))
+                znew = (yold*math.sin(thetasyz[c1]))+(zold*math.cos(thetasyz[c1]))
+                xnew = xold
+                
+                      
+            #Appened to the list 
+            
+                xfinal.append(xnew)
+                yfinal.append(ynew)
+                zfinal.append(znew)
+    
+    
+                PN = (Pep_Name[c2])
+                ANa = (Atom_Name[c2])
+                ANu = (Atom_Number[c2])
+                x = float(xnew)
+                y = float(ynew)            
+                z = float(znew)            
+                f.write("%8s%7s%5d%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z))   
+                    
+            c2+=1
+        c1+=1
 
 with open ("testpriems777.gro", "a") as f:
     f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))
 
-print("XFINAL",xfinal)
-print("C1=", c1)
-print("C2=", c2)
+#print("XFINAL",xfinal)
+#print("C1=", c1)
+#print("C2=", c2)
+    
