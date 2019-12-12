@@ -1,22 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Thu Oct 17 20:02:13 2019
+Created on Tue Dec 10 14:21:21 2019
+
 @author: joe
 """
-'''
-The below script, so far, creates a spiral of points on a sphere. Plots the points in 3d then attempts to create a pdb file for
-opening with Pymol/VMD veiwing of the points. The points will be the points where the cys from each peptide is placed.
-#SPHERICAL FROM: Kogan, Jonathan (2017) "A New Computationally Efficient
-#Method for Spacing n Points on a Sphere," Rose-Hulman Undergraduate Mathematics
-#Journal: Vol. 18 : Iss. 2 , Article 5.
-#Available at: https://scholar.rose-hulman.edu/rhumj/vol18/iss2/5
-'''
-###############################################################################
 ###############################################################################
 
+#FUNCTIONS FROM PAPER
+    
+###############################################################################   
 import math
 
 #Creates the spherical lines
@@ -44,95 +37,20 @@ def NX(n, x):
 def generate_points(n):
     return NX(n, 0.1 + 1.2 * n)
 
-
-#Split the generated points into XYZ
-def xyz(n):
-    global POINTS
-    POINTS=[]
-    c = 0
-   
-    while c < 3:
-        for v in genplot:
-            POINTS.append(genplot[c][n])
-            c+=1
-           
-    return(POINTS)
-    x = xyz(0)
-    return(x)
-    y = xyz(1)
-    return(y)
-    z = xyz(2)
-    return(z)
-
-
-#Define the xyz points to move cys to.
-def points():
-
-    FileName = "TEST \n"
-    #FileLen = len(x)
-    FileLen = 272101
-    #xd = max(x)
-    #yd = max(y)
-    #zd = max(z)
-    
-    c=0
-    with open ("testpriems77.gro", "a") as f:
-        f.write(FileName)
-        f.write("%5s \n" %(FileLen))
-        for v in x:
-            print(v)  
-            i = (genplot[c])
-            xa = ((i[0]/2)*size)
-            ya = ((i[1]/2)*size)
-            za = ((i[2]/2)*size)
-            q = c+1
-            p=(q)  
-            f.write("%5d%-5s%5s%5d%8.3f%8.3f%8.3f \n" % (p, "AU2", "AUB", p, xa, ya, za))
-            c+=1  
-            print("HEREEE",xa,ya,za)
-    global linenum
-    linenum = c
-    print(linenum)
-#Defining theta for rotation around x,y z.
-def theta():            
-
-    
-    c=0
-    global thetasxy
-    global thetasz
-    thetasxy = []
-    thetasz = []
-    
-    for p in genplot:
-            i = (genplot[c])
-            xa = ((i[0]/2)*size)
-            ya = ((i[1]/2)*size)
-            za = ((i[2]/2)*size)
-            thetaxy = math.atan2(ya,xa)
-            thetasxy.append(thetaxy)
-            
-            sxy = math.sqrt(xa**2 + ya**2)
-            thetaz = math.atan2(sxy,za)
-            thetasz.append(thetaz)
-
-            c+=1
-    global thetas      
-    thetas = (thetasxy, thetasz)        
-    return thetas
-    #print("THIS IS THETAS",thetasxy)
-
-
-
 ###############################################################################
-#Works out how many lines = atoms in Peptide.gro and saves as Leng.
-#Opens peptide.gro as pfn.
-def pep_len(pfn):
-    global leng
-    with open(pfn) as f:
-        for leng, l in enumerate(f):
-            pass
 
-    #print(leng)
+#MY FUNCTIONS
+    
+###############################################################################   
+#Split the generated points into XYZ and multiply by radius.
+def xyz(col):
+    global points
+    points = []
+    c = 0
+    for v in genplot:
+        value = ((genplot[c][col])/2*SIZE)
+        points.append(value)
+        c+=1
 
 #A function to open a file = pfn. Split each column into a list with length leng
 # depending on value of column (0-6 in pfn), it is saved to "variable"
@@ -184,136 +102,143 @@ def split(leng):
     Y_Coor = (peptide_gro['var4'])
     global Z_Coor
     Z_Coor = (peptide_gro['var5'])
+
+def spherical():
+    c = 0
+    global R
+    R = math.sqrt((XPOINTS[0]**2)+(YPOINTS[0]**2)+(ZPOINTS[0]**2))
+    global THETAS
+    THETAS = []
+    global RHOS
+    RHOS = []
+    for v in XPOINTS:
+        RHO = math.atan2(YPOINTS[c], XPOINTS[c])
+        RHOS.append(RHO)
+        THETA = math.acos(ZPOINTS[c]/R)
+        THETAS.append(THETA)
+        c+=1
+    print("H",THETAS, RHOS)
     
     
-def add_pep():
-    with open ("testpriems77.gro", "a") as f:
-        sp=(len(X_Coor))
-        c = 0
-        while c < sp: 
-        #for v in X_Coor:
-            PN = (Pep_Name[c])
-            ANa = (Atom_Name[c])
-            ANu = (Atom_Number[c])
-            x = float(X_Coor[c])
-            y = float(Y_Coor[c])            
-            z = float(Z_Coor[c])            
-            #print(PN)
-            #print(ANa)
-            #print(ANu)
-            #print(x,y,z)
-            
-            
-            
-            f.write("%8s%7s%5d%8.3f%8.3f%8.3f \n" % (PN, ANa, c,x,y,z))   
-            c +=1
-   
-#f.write("%5d%-5s%5s%5d%8.3f%8.3f%8.3f%8.4f%8.4f%8.4f \n" % (p, Pep_Name, Atom_Name, Atom_Number, X_Coor, Y_Coor, Z_Coor))
-#c+=1  
-##############################################################################
+def POINTS():
+    global XNEWS
+    XNEWS = []
+    global YNEWS
+    YNEWS = []
+    global ZNEWS
+    ZNEWS= []
 
-#RUNNING THE ABOVE
-size = 14.00
-d = 0.231
+    c = 0
+    for x in XPOINTS:
+        XNEW = R*math.sin(RHOS[c])*math.cos(THETAS[c])
+        XNEWS.append(XNEW)
+        YNEW = R*math.sin(RHOS[c])*math.sin(THETAS[c])
+        YNEWS.append(YNEW)
+        ZNEW = R*math.cos(RHOS[c])
+        ZNEWS.append(ZNEW)
+        c+=1
 
+    return XNEWS, YNEWS, ZNEWS
+###############################################################################
 
-(spherical_coordinate(1,1))
-(NX(900,1))
-genplot = (generate_points(900))
-x = xyz(0)
-y = xyz(1)
-z = xyz(2)
-points()
-theta()
+#Defining the system
+    
+###############################################################################    
+FNO = "TESTPEP.gro"
+NUMPEPT = 6
+SIZE = 14
 
-split(302)
-add_pep()
-#pep_len("peptide.gro")
 
 ###############################################################################
 
-#print ("points....",genplot[0])
-
-#print(X_Coor)
-#print(Y_Coor)
-#print(Z_Coor)
-
-
-
-
-xfinals = []
-yfinals = []
-zfinals = []
-
-theta()
-  
-
-#ThetaFinalxy = [3.141]
-#ThetaFinalz = [0]
-#thetasyz = [0]
+#RUNNING
+    
+###############################################################################   
+genplot = (generate_points(NUMPEPT))
+xyz(0)
+XPOINTS = points
+xyz(1)
+YPOINTS = points
+xyz(2)
+ZPOINTS = points
 
 
-#x = [1]
+#testPOINTS
+XPOINTS = [7,-7,0,0,0,0]
+YPOINTS = [0,0,7,-7,0,0]
+ZPOINTS = [0,0,0,0,7,-7]
+
+
+
+
+
+FileName = "TEST \n"
+FileLen = 272101
+c=0
+with open (FNO, "a") as f:
+    f.write(FileName)
+    f.write("%5s \n" %(FileLen))
+    for v in XPOINTS: 
+        xa = (XPOINTS[c])
+        ya = (YPOINTS[c])
+        za = (ZPOINTS[c])
+        q = c+1
+        p=(q)  
+        f.write("%5d%-5s%5s%5d%8.3f%8.3f%8.3f \n" % (p, "AU2", "AUB", p, xa, ya, za))
+        c+=1  
+
+
+
+
+
+
+spherical()
+split(302)
+
+
 c1 = 0
-for p in x:
-    #while c1<1:
-        c2 = 0
-        for v in X_Coor:
-            with open ("testpriems77.gro", "a") as f:
-                #split(302)
-        
-                xold = float(X_Coor[c2])
-                yold = float(Y_Coor[c2])
-                zold = float(Z_Coor[c2])
+for v in XPOINTS: 
+    theta = THETAS[c1]
+    print("this thetaaa \n", theta)
+    rho = RHOS[c1]
+    print("RHOOOOOO \n", rho)
+    c2=0
+    for v in X_Coor:
+        with open (FNO, "a") as f:
+            xcoor = float(X_Coor[c2])+(7)
+            ycoor = float(Y_Coor[c2])
+            zcoor = float(Z_Coor[c2])
+            RP = math.sqrt((xcoor**2)+(ycoor**2)+(zcoor**2))
             
-            #Translate along x.
-                xnew = (xold+((size)/2))
-                xold = xnew
-                
-           #Ititial SPHEREICAL COOR
-               
-                thetaINITxy = math.atan2(xold,yold)
-                
-                sxy = math.sqrt(xold**2 + yold**2)
-                thetaINITz = math.atan2(zold,sxy)
+            rhoINIT = math.atan2(ycoor,xcoor)
+            #print("rhooinittt \n", rhoINIT)
+            rhoFINAL = rhoINIT+rho
+            #print("rhoFINALLLLEEE", rhoFINAL)
+            #print(rhoFINAL)
+            thetaINIT = math.acos(zcoor/ RP)
+            #print("thetas", thetaINIT)
+            thetaFINAL = thetaINIT + theta
+            #print(thetaFINAL)
             
-                rd = (math.sqrt(xold**2 + yold**2 + zold**2))
-                #rd = 7
-                
-                #Rotation
-                ThetaFinalxy = thetaINITxy + thetasxy[c1]
-                ThetaFinalz = thetaINITz + thetasz[c1]
-                
-                
-                #Spherical to Catersian
-                Xfinal = (rd*math.cos(ThetaFinalxy))+(rd*math.sin(ThetaFinalxy))
-                Xfinal = Xfinal + (rd*math.cos(ThetaFinalxy))- (rd*math.cos(ThetaFinalxy))
-                Yfinal = (rd*math.sin(ThetaFinalxy))+(rd*math.cos(ThetaFinalxy))
-                Zfinal = rd*-math.sin(ThetaFinalz) +rd*math.cos(ThetaFinalz)
+            #XNEWCOOR = RP*math.sin(rhoFINAL)*math.cos(thetaFINAL)
+            XNEWCOOR = RP*math.cos(thetaFINAL)
+            #YNEWCOOR = RP*math.sin(rhoFINAL)*math.sin(thetaFINAL)
+            YNEWCOOR = RP*math.sin(thetaFINAL)
+            ZNEWCOOR = RP*math.cos(rhoFINAL)            
 
-                      
-            #Appened to the list 
-            
-                xfinals.append(Xfinal)
-                yfinals.append(Yfinal)
-                zfinals.append(Zfinal)
-    
-    
-                PN = (Pep_Name[c2])
-                ANa = (Atom_Name[c2])
-                ANu = (Atom_Number[c2])
-                x = float(Xfinal)
-                y = float(Yfinal)            
-                z = float(Zfinal)            
-                f.write("%8s%7s%5d%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z))   
-                    
-            c2+=1
-        c1+=1
+            PN = (Pep_Name[c2])
+            ANa = (Atom_Name[c2])
+            ANu = (Atom_Number[c2])
+            x = float(XNEWCOOR)
+            y = float(YNEWCOOR)            
+            z = float(ZNEWCOOR)            
+            f.write("%8s%7s%5d%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z))
 
-with open ("testpriems77.gro", "a") as f:
-    f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))
+        c2+=1  
+    c1+=1
 
-#print("XFINAL",xfinal)
-#print("C1=", c1)
-#print("C2=", c2)
+with open (FNO, "a") as f:
+    f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))   
+
+
     
