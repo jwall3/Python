@@ -112,12 +112,12 @@ def spherical():
     global RHOS
     RHOS = []
     for v in XPOINTS:
-        RHO = math.atan2(YPOINTS[c], XPOINTS[c])
+        RHO = math.acos(ZPOINTS[c]/R)
         RHOS.append(RHO)
-        THETA = math.acos(ZPOINTS[c]/R)
+        THETA =  math.atan2(YPOINTS[c], XPOINTS[c])
         THETAS.append(THETA)
         c+=1
-    print("H",THETAS, RHOS)
+    #print("T,R",THETAS, RHOS)
     
     
 def POINTS():
@@ -145,7 +145,7 @@ def POINTS():
     
 ###############################################################################    
 FNO = "TESTPEP.gro"
-NUMPEPT = 6
+NUMPEPT = 401
 SIZE = 14
 
 
@@ -162,12 +162,12 @@ YPOINTS = points
 xyz(2)
 ZPOINTS = points
 
-
+'''
 #testPOINTS
 XPOINTS = [7,-7,0,0,0,0]
 YPOINTS = [0,0,7,-7,0,0]
 ZPOINTS = [0,0,0,0,7,-7]
-
+'''
 
 
 
@@ -199,46 +199,61 @@ split(302)
 c1 = 0
 for v in XPOINTS: 
     theta = THETAS[c1]
-    print("this thetaaa \n", theta)
+    #print(c1, "this thetaaa \n", theta)
     rho = RHOS[c1]
-    print("RHOOOOOO \n", rho)
+    #print(c1, "RHOOOOOO \n", rho)
     c2=0
     for v in X_Coor:
         with open (FNO, "a") as f:
             xcoor = float(X_Coor[c2])+(7)
+            #print(xcoor)
             ycoor = float(Y_Coor[c2])
             zcoor = float(Z_Coor[c2])
             RP = math.sqrt((xcoor**2)+(ycoor**2)+(zcoor**2))
             
-            rhoINIT = math.atan2(ycoor,xcoor)
-            #print("rhooinittt \n", rhoINIT)
-            rhoFINAL = rhoINIT+rho
-            #print("rhoFINALLLLEEE", rhoFINAL)
-            #print(rhoFINAL)
-            thetaINIT = math.acos(zcoor/ RP)
-            #print("thetas", thetaINIT)
-            thetaFINAL = thetaINIT + theta
-            #print(thetaFINAL)
+            rhoINIT = math.acos(zcoor/ RP)
+            #print(c1,"rhooinittt \n", rhoINIT)
+            #rhoFINAL = rho  +(rhoINIT-(math.pi/2))
+            rhoFINAL = rho + (rhoINIT - (math.pi/2)) 
+            print(c1, "rhoFINALLLLEEE", rhoFINAL)
+                
             
-            #XNEWCOOR = RP*math.sin(rhoFINAL)*math.cos(thetaFINAL)
-            XNEWCOOR = RP*math.cos(thetaFINAL)
-            #YNEWCOOR = RP*math.sin(rhoFINAL)*math.sin(thetaFINAL)
-            YNEWCOOR = RP*math.sin(thetaFINAL)
-            ZNEWCOOR = RP*math.cos(rhoFINAL)            
+            xcoor = RP*math.sin(rhoFINAL)*math.cos(theta)
+            ycoor = RP*math.sin(rhoFINAL)*math.sin(theta)
+            zcoor = RP*math.cos(rhoFINAL)     
+            
 
+            thetaINIT = math.atan2(ycoor,xcoor)
+            #print(c1, "thetai", thetaINIT)
+            thetaFINAL =  theta + thetaINIT
+            
+            print(c1, "thetaFINAL",thetaFINAL)
+            
+            XNEWCOOR = RP*math.cos(thetaFINAL)
+            print(c1,"xxxxxx", XNEWCOOR)
+            #XNEWCOOR = RP*math.cos(thetaFINAL)
+            YNEWCOOR = RP*math.sin(thetaFINAL)
+            print(c1,"yyyy",YNEWCOOR)
+            #YNEWCOOR = RP*math.sin(thetaFINAL)
+            ZNEWCOOR = RP*math.cos(rhoFINAL)            
+            print(c1, "zzzzz", ZNEWCOOR)
             PN = (Pep_Name[c2])
             ANa = (Atom_Name[c2])
             ANu = (Atom_Number[c2])
             x = float(XNEWCOOR)
-            y = float(YNEWCOOR)            
+            #print(x)
+            y = float(YNEWCOOR)
+            #print(y)            
             z = float(ZNEWCOOR)            
+            #print(z)
+            #print("\n")
             f.write("%8s%7s%5d%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z))
-
-        c2+=1  
+            #f.write ("%10f%10f%10f \n" %(x,y,z))
+        c2+=1 
     c1+=1
-
 with open (FNO, "a") as f:
     f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))   
+
 
 
     
