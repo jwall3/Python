@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Dec 10 14:21:21 2019
-
 @author: joe
 """
 ###############################################################################
@@ -173,7 +172,7 @@ ZPOINTS = [0,0,0,0,7,-7]
 
 
 FileName = "TEST \n"
-FileLen = 272101
+FileLen = 121102
 c=0
 with open (FNO, "a") as f:
     f.write(FileName)
@@ -214,25 +213,27 @@ for v in XPOINTS:
             rhoINIT = math.acos(zcoor/ RP)
             #print(c1,"rhooinittt \n", rhoINIT)
             #rhoFINAL = rho  +(rhoINIT-(math.pi/2))
-            rhoFINAL = rho + (rhoINIT - (math.pi/2)) 
+            rhoDELTA = rho - 1.567354
+            rhoFINAL = rhoDELTA + rhoINIT 
             print(c1, "rhoFINALLLLEEE", rhoFINAL)
                 
-            
+            '''
             xcoor = RP*math.sin(rhoFINAL)*math.cos(theta)
             ycoor = RP*math.sin(rhoFINAL)*math.sin(theta)
             zcoor = RP*math.cos(rhoFINAL)     
-            
+            '''
 
             thetaINIT = math.atan2(ycoor,xcoor)
             #print(c1, "thetai", thetaINIT)
-            thetaFINAL =  theta + thetaINIT
+            thetaDELTA = theta - 0.010326
+            thetaFINAL =  thetaDELTA + thetaINIT
             
             print(c1, "thetaFINAL",thetaFINAL)
             
-            XNEWCOOR = RP*math.cos(thetaFINAL)
+            XNEWCOOR = RP*math.sin(rhoFINAL)*math.cos(thetaFINAL)
             print(c1,"xxxxxx", XNEWCOOR)
             #XNEWCOOR = RP*math.cos(thetaFINAL)
-            YNEWCOOR = RP*math.sin(thetaFINAL)
+            YNEWCOOR = RP*math.sin(rhoFINAL)*math.sin(thetaFINAL)
             print(c1,"yyyy",YNEWCOOR)
             #YNEWCOOR = RP*math.sin(thetaFINAL)
             ZNEWCOOR = RP*math.cos(rhoFINAL)            
@@ -248,12 +249,8 @@ for v in XPOINTS:
             #print(z)
             #print("\n")
             f.write("%8s%7s%5d%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z))
-            #f.write ("%10f%10f%10f \n" %(x,y,z))
+            #f.write ("%10f%10f%10f \n" %(theta,thetaINIT,thetaFINAL))
         c2+=1 
     c1+=1
 with open (FNO, "a") as f:
     f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))   
-
-
-
-    
