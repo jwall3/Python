@@ -253,4 +253,4 @@ for v in XPOINTS:
         c2+=1 
     c1+=1
 with open (FNO, "a") as f:
-    f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))   
+    f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))     
