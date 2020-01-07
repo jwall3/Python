@@ -77,8 +77,33 @@ def fs(leng,column,pfn):
 #Split uses the func fn, to open pfn and save each column to a list named Varx, 
 # where x = column num. These are then replaced with actual names and added to
 # a dictionary of lists with the name as the key.
-def split(leng):
-    pfn = "peptide.gro"
+def splitx(leng):
+    pfn = "peptideX.gro"
+    #pep_len(pfn)    
+    
+    peptide_gro = {}
+    
+    v = 0
+    while v<6:
+        peptide_gro["var"+str(v)] = fs(leng,v,pfn)
+        v+=1
+    
+    
+    global Pep_Name
+    Pep_Name = (peptide_gro['var0'])
+    global Atom_Name
+    Atom_Name = (peptide_gro['var1'])
+    global Atom_Number
+    Atom_Number = (peptide_gro['var2'])
+    global X_Coor
+    X_Coor = (peptide_gro['var3'])
+    global Y_Coor
+    Y_Coor = (peptide_gro['var4'])
+    global Z_Coor
+    Z_Coor = (peptide_gro['var5'])
+    
+def splitz(leng):
+    pfn = "peptideZ.gro"
     #pep_len(pfn)    
     
     peptide_gro = {}
@@ -116,7 +141,7 @@ def spherical():
         THETA =  math.atan2(YPOINTS[c], XPOINTS[c])
         THETAS.append(THETA)
         c+=1
-    #print("T,R",THETAS, RHOS)
+    print("T,R",THETAS, RHOS)
     
     
 def POINTS():
@@ -144,7 +169,7 @@ def POINTS():
     
 ###############################################################################    
 FNO = "TESTPEP.gro"
-NUMPEPT = 401
+NUMPEPT = 900
 SIZE = 14
 
 
@@ -161,18 +186,18 @@ YPOINTS = points
 xyz(2)
 ZPOINTS = points
 
-'''
+
 #testPOINTS
 XPOINTS = [7,-7,0,0,0,0]
 YPOINTS = [0,0,7,-7,0,0]
 ZPOINTS = [0,0,0,0,7,-7]
-'''
+
 
 
 
 
 FileName = "TEST \n"
-FileLen = 121102
+FileLen = 1812
 c=0
 with open (FNO, "a") as f:
     f.write(FileName)
@@ -186,71 +211,132 @@ with open (FNO, "a") as f:
         f.write("%5d%-5s%5s%5d%8.3f%8.3f%8.3f \n" % (p, "AU2", "AUB", p, xa, ya, za))
         c+=1  
 
-
-
-
-
-
 spherical()
-split(302)
-
-
+        
 c1 = 0
 for v in XPOINTS: 
-    theta = THETAS[c1]
-    #print(c1, "this thetaaa \n", theta)
-    rho = RHOS[c1]
-    #print(c1, "RHOOOOOO \n", rho)
-    c2=0
-    for v in X_Coor:
-        with open (FNO, "a") as f:
-            xcoor = float(X_Coor[c2])+(7)
-            #print(xcoor)
-            ycoor = float(Y_Coor[c2])
-            zcoor = float(Z_Coor[c2])
-            RP = math.sqrt((xcoor**2)+(ycoor**2)+(zcoor**2))
-            
-            rhoINIT = math.acos(zcoor/ RP)
-            #print(c1,"rhooinittt \n", rhoINIT)
-            #rhoFINAL = rho  +(rhoINIT-(math.pi/2))
-            rhoDELTA = rho - 1.567354
-            rhoFINAL = rhoDELTA + rhoINIT 
-            print(c1, "rhoFINALLLLEEE", rhoFINAL)
-                
-            '''
-            xcoor = RP*math.sin(rhoFINAL)*math.cos(theta)
-            ycoor = RP*math.sin(rhoFINAL)*math.sin(theta)
-            zcoor = RP*math.cos(rhoFINAL)     
-            '''
+    if 3.5 > ZPOINTS[c1] > -3.5:
 
-            thetaINIT = math.atan2(ycoor,xcoor)
-            #print(c1, "thetai", thetaINIT)
-            thetaDELTA = theta - 0.010326
-            thetaFINAL =  thetaDELTA + thetaINIT
-            
-            print(c1, "thetaFINAL",thetaFINAL)
-            
-            XNEWCOOR = RP*math.sin(rhoFINAL)*math.cos(thetaFINAL)
-            print(c1,"xxxxxx", XNEWCOOR)
-            #XNEWCOOR = RP*math.cos(thetaFINAL)
-            YNEWCOOR = RP*math.sin(rhoFINAL)*math.sin(thetaFINAL)
-            print(c1,"yyyy",YNEWCOOR)
-            #YNEWCOOR = RP*math.sin(thetaFINAL)
-            ZNEWCOOR = RP*math.cos(rhoFINAL)            
-            print(c1, "zzzzz", ZNEWCOOR)
-            PN = (Pep_Name[c2])
-            ANa = (Atom_Name[c2])
-            ANu = (Atom_Number[c2])
-            x = float(XNEWCOOR)
-            #print(x)
-            y = float(YNEWCOOR)
-            #print(y)            
-            z = float(ZNEWCOOR)            
-            #print(z)
-            #print("\n")
-            f.write("%8s%7s%5d%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z))
-            #f.write ("%10f%10f%10f \n" %(theta,thetaINIT,thetaFINAL))
-        c2+=1 
+        splitx(302)
+    
+        theta = THETAS[c1]
+        print(c1, "this thetaaa \n", theta)
+        rho = RHOS[c1]
+        print(c1, "RHOOOOOO \n", rho)
+        c2=0
+        for v in X_Coor:
+            with open (FNO, "a") as f:
+                xcoor = float(X_Coor[c2])+7
+                #print(xcoor)
+                ycoor = float(Y_Coor[c2])
+                zcoor = float(Z_Coor[c2])
+                RP = math.sqrt((xcoor**2)+(ycoor**2)+(zcoor**2))
+                
+                rhoINIT = math.acos(zcoor/ RP)
+                #print(c1,"rhooinittt \n", rhoINIT)
+                #rhoFINAL = rho  +(rhoINIT-(math.pi/2))
+                rhoDELTA = rho - 1.571
+                print(rhoDELTA)
+                rhoFINAL = rhoDELTA + rhoINIT 
+                print(c1, "rhoFINALLLLEEE", rhoFINAL)
+    
+               
+                thetaINIT = math.atan2(ycoor,xcoor)
+                #print(c1, "thetai", thetaINIT)
+                thetaDELTA = theta 
+                thetaFINAL =  theta + thetaINIT
+                
+                #print(c1, "thetaFINAL",thetaFINAL)
+                
+                XNEWCOOR = RP*(math.sin(rhoFINAL)*math.cos(thetaFINAL))
+                #print(c1,"xxxxxx", XNEWCOOR)
+                #XNEWCOOR = RP*math.cos(thetaFINAL)
+                YNEWCOOR = RP*(math.sin(rhoFINAL)*math.sin(thetaFINAL))
+                #print(c1,"yyyy",YNEWCOOR)
+                #YNEWCOOR = RP*math.sin(thetaFINAL)
+                ZNEWCOOR = RP*math.cos(rhoFINAL)            
+                #print(c1, "zzzzz", ZNEWCOOR)
+                PN = (Pep_Name[c2])
+                
+                ANa = (Atom_Name[c2])
+                ANu = (Atom_Number[c2])
+                x = float(XNEWCOOR)
+                #print(x)
+                y = float(YNEWCOOR)
+                #print(y)            
+                z = float(ZNEWCOOR)            
+                #print(z)
+                #print("\n")
+                f.write("%8s%7s%5d%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z))
+                #f.write ("%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%5i \n" %(xcoor, ycoor, zcoor, RP,theta,thetaINIT,thetaFINAL,rho,rhoINIT, rhoFINAL, x, y, z, c2))
+                #f.write ("%10f%10f%10f%10f%5i \n" %(theta,thetaINIT,thetaDELTA,thetaFINAL,c2))
+                #f.write ("%10f%10f%10f%10f%5i \n" %(rho,rhoINIT,rhoDELTA,rhoFINAL,c2))
+                c2+=1 
+    
+    else:
+        splitz(302)
+    
+        theta = THETAS[c1]
+        print(c1, "this thetaaa \n", theta)
+        rho = RHOS[c1]
+        print(c1, "RHOOOOOO \n", rho)
+        c2=0
+        for v in X_Coor:
+            with open (FNO, "a") as f:
+                xcoor = float(X_Coor[c2])
+                #print(xcoor)
+                ycoor = float(Y_Coor[c2])
+                zcoor = float(Z_Coor[c2])+7
+                RP = math.sqrt((xcoor**2)+(ycoor**2)+(zcoor**2))
+                
+                rhoINIT = math.acos(zcoor/ RP)
+                #print(c1,"rhooinittt \n", rhoINIT)
+                #rhoFINAL = rho  +(rhoINIT-(math.pi/2))
+                rhoDELTA = rho
+                print(rhoDELTA)
+                rhoFINAL = rhoDELTA + rhoINIT 
+                print(c1, "rhoFINALLLLEEE", rhoFINAL)
+    
+               
+                thetaINIT = math.atan2(ycoor,xcoor)
+                #print(c1, "thetai", thetaINIT)
+                thetaDELTA = theta 
+                thetaFINAL =  theta + thetaINIT
+                
+                #print(c1, "thetaFINAL",thetaFINAL)
+                
+                XNEWCOOR = RP*(math.sin(rhoFINAL)*math.cos(thetaFINAL))
+                #print(c1,"xxxxxx", XNEWCOOR)
+                #XNEWCOOR = RP*math.cos(thetaFINAL)
+                YNEWCOOR = RP*(math.sin(rhoFINAL)*math.sin(thetaFINAL))
+                #print(c1,"yyyy",YNEWCOOR)
+                #YNEWCOOR = RP*math.sin(thetaFINAL)
+                ZNEWCOOR = RP*math.cos(rhoFINAL)            
+                #print(c1, "zzzzz", ZNEWCOOR)
+                PN = (Pep_Name[c2])
+                
+                ANa = (Atom_Name[c2])
+                ANu = (Atom_Number[c2])
+                x = float(XNEWCOOR)
+                #print(x)
+                y = float(YNEWCOOR)
+                #print(y)            
+                z = float(ZNEWCOOR)            
+                #print(z)
+                #print("\n")
+                f.write("%8s%7s%5d%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z))
+                #f.write ("%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%10f,%5i \n" %(xcoor, ycoor, zcoor, RP,theta,thetaINIT,thetaFINAL,rho,rhoINIT, rhoFINAL, x, y, z, c2))
+                #f.write ("%10f%10f%10f%10f%5i \n" %(theta,thetaINIT,thetaDELTA,thetaFINAL,c2))
+                #f.write ("%10f%10f%10f%10f%5i \n" %(rho,rhoINIT,rhoDELTA,rhoFINAL,c2))
+                c2+=1 
+    
+
     c1+=1
+
+
+
+
+
 with open (FNO, "a") as f:
     f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))     
+    
