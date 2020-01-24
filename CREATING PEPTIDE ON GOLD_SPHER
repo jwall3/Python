@@ -142,12 +142,17 @@ def PROD(V1, V2):
 
 def DIV(V1, V2):
     global V3
+    V3 = [V1[0]/V2, V1[1]/V2, V1[2]/V2]
+    return V3
+'''
+def DIV(V1, V2):
+    global V3
     if V2 == 0:
         V3 = [0.0,1.0,0.0]
     else:
         V3 = [V1[0]/V2, V1[1]/V2, V1[2]/V2]
     return V3
-
+'''
 def PLUS(V1, V2):
     global V3
     V3 = [V1[0]+V2[0],V1[1]+V2[1],V1[2]+V2[2]]
@@ -166,11 +171,43 @@ def MINUS(V1,V2):
 FNO = "TESTPEP.gro"
 NUMPEPT = 900
 SIZE = 14
+FileName = "TEST \n"
+FileLen = 2656499
 ###############################################################################
 
 #RUNNING
 
 ###############################################################################  
+with open ("au-cubic.gro", "r") as f:
+    with open (FNO, "a") as fo:
+        fo.write(FileName)
+        fo.write("%5s \n" %(FileLen))
+        ln = 0
+        for line in f:
+            if ln < 2:
+                ln+=1
+            elif ln > 5627881:
+                exit
+            else:
+                col = line.split()
+                pp = col[0]
+                atom = str(col[1]) 
+                x = float(col[-6])
+                y = float(col[-5])
+                z = float(col[-4])
+                r = math.sqrt((x**2)+(y**2)+(z**2))
+                #print(r)
+                #print(x,y,z)
+                nn = 0
+                if r > SIZE/2:
+                    ln+=1
+                else:
+                    fo.write(line)
+                    #fo.write("%5s%-5s%5s%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f \n" % (nn, "AU2",atom, x, y, z,0,0,0))
+                    nn=+1  
+                    ln+=1
+
+
 genplot = (generate_points(NUMPEPT))
 xyz(0)
 XPOINTS = points
@@ -179,21 +216,28 @@ YPOINTS = points
 xyz(2)
 ZPOINTS = points
  
-FileName = "TEST \n"
-FileLen = 1812
+
+'''
+XPOINTS = [-6.887,-6.871]
+
+YPOINTS = [-0.675,-1.192]
+
+ZPOINTS = [1.055,0.609]
+'''
+'''
 c=0
 with open (FNO, "a") as f:
-    f.write(FileName)
-    f.write("%5s \n" %(FileLen))
+    #f.write(FileName)
+    #f.write("%5s \n" %(FileLen))
     for v in XPOINTS:
         xa = (XPOINTS[c])
         ya = (YPOINTS[c])
         za = (ZPOINTS[c])
         q = c+1
         p=(q) 
-        f.write("%5d%-5s%5s%5d%8.3f%8.3f%8.3f \n" % (p, "AU2", "AUB", p, xa, ya, za))
+        f.write("%5d%-5s%5s%5d%8.3f%8.3f%8.3f \n" % (p, "AU2", "AUD", p, xa, ya, za))
         c+=1 
- 
+'''
 split(302)
 c1 = 0
 for v in XPOINTS:
@@ -233,7 +277,7 @@ for v in XPOINTS:
             x = float(OAf[0])
             y = float(OAf[1])
             z = float(OAf[2])           
-            f.write("%8s%7s%5d%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z))
+            f.write("%8s%7s%5d%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z,0,0,0))
         c2+=1
     c1+=1
 with open (FNO, "a") as f:
