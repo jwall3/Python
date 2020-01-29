@@ -85,8 +85,8 @@ def fs(leng,column,pfn):
     return(variable)
 
 
-def split(leng):
-    pfn = "peptide.gro"
+def split(leng, pfn):
+    #pfn = "peptide.gro"
     peptide_gro = {}
 
     v = 0
@@ -169,43 +169,50 @@ def MINUS(V1,V2):
 
 ###############################################################################   
 FNO = "TESTPEP.gro"
-NUMPEPT = 900
+NUMPEPT = 400
 SIZE = 14
 FileName = "TEST \n"
-FileLen = 2656499
+FileLen = 439863
 ###############################################################################
 
 #RUNNING
 
 ###############################################################################  
+
+
 with open ("au-cubic.gro", "r") as f:
     with open (FNO, "a") as fo:
         fo.write(FileName)
         fo.write("%5s \n" %(FileLen))
         ln = 0
+        b = 0
         for line in f:
             if ln < 2:
                 ln+=1
-            elif ln > 5627881:
+            elif ln > 5627880:
                 exit
             else:
-                col = line.split()
+                col = line.split()                
                 pp = col[0]
                 atom = str(col[1]) 
                 x = float(col[-6])
                 y = float(col[-5])
                 z = float(col[-4])
                 r = math.sqrt((x**2)+(y**2)+(z**2))
-                #print(r)
-                #print(x,y,z)
-                nn = 0
-                if r > SIZE/2:
-                    ln+=1
+                if ln % 2 == 0:
+                    if r < SIZE/2:
+                        fo.write(line)
+                        ln+=1
+                        b+=1
+                    else:
+                        ln+=1
                 else:
-                    fo.write(line)
-                    #fo.write("%5s%-5s%5s%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f \n" % (nn, "AU2",atom, x, y, z,0,0,0))
-                    nn=+1  
-                    ln+=1
+                    if b == 1:
+                        fo.write(line)
+                        ln+=1
+                        b-=1
+                    else:      
+                        ln+=1
 
 
 genplot = (generate_points(NUMPEPT))
@@ -217,68 +224,95 @@ xyz(2)
 ZPOINTS = points
  
 
-'''
-XPOINTS = [-6.887,-6.871]
-
-YPOINTS = [-0.675,-1.192]
-
-ZPOINTS = [1.055,0.609]
-'''
-'''
-c=0
-with open (FNO, "a") as f:
-    #f.write(FileName)
-    #f.write("%5s \n" %(FileLen))
-    for v in XPOINTS:
-        xa = (XPOINTS[c])
-        ya = (YPOINTS[c])
-        za = (ZPOINTS[c])
-        q = c+1
-        p=(q) 
-        f.write("%5d%-5s%5s%5d%8.3f%8.3f%8.3f \n" % (p, "AU2", "AUD", p, xa, ya, za))
-        c+=1 
-'''
-split(302)
+#split(302)
 c1 = 0
+
 for v in XPOINTS:
-    OS  = [7,0,0]
-    OSf = [XPOINTS[c1], YPOINTS[c1], ZPOINTS[c1]]
-    CPosf = CP(OS, OSf)
-    Nosf = NO(CPosf)
-    k = DIV(CPosf,Nosf)
-    thetaprod = (DP(OS, OSf))/ (NO(OS) * NO(OSf))
-    theta = math.acos(thetaprod)
+    if -8 < float(XPOINTS[c1]):
+        split(302, "peptide.gro")
+        OS  = [7,0,0]
+        OSf = [XPOINTS[c1], YPOINTS[c1], ZPOINTS[c1]]
+        CPosf = CP(OS, OSf)
+        Nosf = NO(CPosf)
+        k = DIV(CPosf,Nosf)
+        thetaprod = (DP(OS, OSf))/ (NO(OS) * NO(OSf))
+        theta = math.acos(thetaprod)
+        #print("PSOSY",XPOINTS[c1])
+        c2=0
+        for v in X_Coor:
+            with open (FNO, "a") as f:
+                xcoor = float(X_Coor[c2])+7
+                ycoor = float(Y_Coor[c2])
+                zcoor = float(Z_Coor[c2])
+                OA = [xcoor, ycoor, zcoor]
+                SA = MINUS(OA, OS)
+                SfAf1 = MULTI(SA,math.cos(theta))
+    
+                SfAf2_1 = MULTI(SA,math.sin(theta))
+                SfAf2_2 = CP(k,SfAf2_1)
+               
+                SfAf3_1 = DP(k,SA)
+                SfAf3_2 = MULTI(k, SfAf3_1)
+                SfAf3_3 = MULTI(SfAf3_2, (1-math.cos(theta)))
+    
+                SfAf_pre = PLUS(SfAf3_3, SfAf2_2)
+                SfAf = PLUS(SfAf_pre, SfAf1)
+                
+                OAf = PLUS(OSf, SfAf)
+    
+                PN = (Pep_Name[c2])
+                ANa = (Atom_Name[c2])
+                ANu = (Atom_Number[c2])
+                x = float(OAf[0])
+                y = float(OAf[1])
+                z = float(OAf[2])           
+                f.write("%8s%7s%5d%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z,0,0,0))
+                #print(XPOINTS[c1])
+            c2+=1
+        c1+=1
 
-    c2=0
-    for v in X_Coor:
-        with open (FNO, "a") as f:
-            xcoor = float(X_Coor[c2])+7
-            ycoor = float(Y_Coor[c2])
-            zcoor = float(Z_Coor[c2])
-            OA = [xcoor, ycoor, zcoor]
-            SA = MINUS(OA, OS)
-            SfAf1 = MULTI(SA,math.cos(theta))
+    else:
+        split(302, "peptide_180.gro")
+        OS  = [-7,0,0]
+        OSf = [XPOINTS[c1], YPOINTS[c1], ZPOINTS[c1]]
+        CPosf = CP(OS, OSf)
+        Nosf = NO(CPosf)
+        k = DIV(CPosf,Nosf)
+        thetaprod = (DP(OS, OSf))/ (NO(OS) * NO(OSf))
+        theta = math.acos(thetaprod)
+        #print("NEGGIES",XPOINTS[c1])
+        c2=0
+        for v in X_Coor:
+            with open (FNO, "a") as f:
+                xcoor = float(X_Coor[c2])-7
+                ycoor = float(Y_Coor[c2])
+                zcoor = float(Z_Coor[c2])
+                OA = [xcoor, ycoor, zcoor]
+                SA = MINUS(OA, OS)
+                SfAf1 = MULTI(SA,math.cos(theta))
+    
+                SfAf2_1 = MULTI(SA,math.sin(theta))
+                SfAf2_2 = CP(k,SfAf2_1)
+               
+                SfAf3_1 = DP(k,SA)
+                SfAf3_2 = MULTI(k, SfAf3_1)
+                SfAf3_3 = MULTI(SfAf3_2, (1-math.cos(theta)))
+    
+                SfAf_pre = PLUS(SfAf3_3, SfAf2_2)
+                SfAf = PLUS(SfAf_pre, SfAf1)
+                
+                OAf = PLUS(OSf, SfAf)
+    
+                PN = (Pep_Name[c2])
+                ANa = (Atom_Name[c2])
+                ANu = (Atom_Number[c2])
+                x = float(OAf[0])
+                y = float(OAf[1])
+                z = float(OAf[2])           
+                f.write("%8s%7s%5d%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z,0,0,0))
 
-            SfAf2_1 = MULTI(SA,math.sin(theta))
-            SfAf2_2 = CP(k,SfAf2_1)
-           
-            SfAf3_1 = DP(k,SA)
-            SfAf3_2 = MULTI(k, SfAf3_1)
-            SfAf3_3 = MULTI(SfAf3_2, (1-math.cos(theta)))
+            c2+=1
+        c1+=1
 
-            SfAf_pre = PLUS(SfAf3_3, SfAf2_2)
-            SfAf = PLUS(SfAf_pre, SfAf1)
-            
-            OAf = PLUS(OSf, SfAf)
-
-            PN = (Pep_Name[c2])
-            ANa = (Atom_Name[c2])
-            ANu = (Atom_Number[c2])
-            x = float(OAf[0])
-            y = float(OAf[1])
-            z = float(OAf[2])           
-            f.write("%8s%7s%5d%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z,0,0,0))
-        c2+=1
-    c1+=1
 with open (FNO, "a") as f:
-    f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))   
+    f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))     
