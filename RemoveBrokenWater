@@ -29,8 +29,7 @@ with open (FileIn, "r") as f:
         else:
             AtomNam = str(line[12:15])
 
-###OW       
-            print(PastLines)     
+###OW          
             if " OW" in AtomNam and len(PastLines) == 0 :
                 PastLines.append(AtomNam)
                 print(PastLines, ln)
@@ -38,7 +37,7 @@ with open (FileIn, "r") as f:
 
 
             elif "HW1" in AtomNam and ' OW' in PastLines and\
-                len(PastLines) == 1:
+            len(PastLines) == 1:
                 PastLines.append(AtomNam)
                 print(PastLines, ln)
                 ln+=1                
@@ -53,8 +52,13 @@ with open (FileIn, "r") as f:
                 LineKeep.append(ln-1) 
                 LineKeep.append(ln-2)
                 ln+=1                        
-            else:
+            
+            elif "HW2" in AtomNam or "HW1" in AtomNam or " OW" in AtomNam:
                 PastLines.clear()
+                ln+=1
+            
+            else:
+                LineKeep.append(ln)
                 ln+=1
 
 
