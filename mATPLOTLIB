@@ -1,0 +1,87 @@
+# -*- coding: utf-8 -*-
+"""
+Spyder Editor
+
+This is a temporary script file.
+"""
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+engine ='python'
+##############################################################################
+########                         colours!!!@                          ######## 
+##############################################################################
+sns.set(font='Franklin Gothic Book',
+        rc={
+ 'axes.axisbelow': False,
+ 'axes.edgecolor': 'lightgrey',
+ 'axes.facecolor': 'None',
+ 'axes.grid': False,
+ 'axes.labelcolor': 'dimgrey',
+ 'axes.spines.right': False,
+ 'axes.spines.top': False,
+ 'figure.facecolor': 'white',
+ 'lines.solid_capstyle': 'round',
+ 'patch.edgecolor': 'w',
+ 'patch.force_edgecolor': True,
+ 'text.color': 'dimgrey',
+ 'xtick.bottom': True,
+ 'xtick.color': 'dimgrey',
+ 'xtick.direction': 'out',
+ 'xtick.top': False,
+ 'ytick.color': 'dimgrey',
+ 'ytick.direction': 'out',
+ 'ytick.left': True,
+ 'ytick.right': False})
+sns.set_context("notebook", rc={"font.size":11,
+                                "axes.titlesize":11,
+                                "axes.labelsize":12})
+fk_blue = '#7c9fa8'
+CB91_Blue = '#2CBDFE'
+CB91_Amber = '#F5B14C'
+CB91_Green = '#47DBCD'
+CB91_Pink = '#F3A0F2'
+CB91_Purple = '#9D2EC5'
+CB91_Violet = '#661D98'
+
+
+color_list = [fk_blue, CB91_Amber, CB91_Pink, CB91_Green,
+              CB91_Purple, CB91_Violet]
+
+plt.rcParams['axes.prop_cycle'] = plt.cycler(color=color_list)
+
+
+
+#plt.legend(frameon=False)
+
+##############################################################################
+########                         INPUT FILES                          ######## 
+##############################################################################
+###
+##DO FOR I IN INPUT (WHERE INPUTS IS ALL INPUT FILE NAMES), DP DATA =PD....
+##ADD YT1, YTA1...
+##Y = YT1, YTA1 ETC.
+##
+INPUT_F = 'EPot_1.xvg'
+xT = "Time (picoseconds)"
+yT = "Potential (kJ/mol)" 
+
+data = pd.read_csv(INPUT_F, "  ", skiprows=24, names = [xT, yT], engine="python")
+data['Average'] = data[yT].rolling(100).mean()
+
+##############################################################################
+########                         plottting                            ######## 
+##############################################################################
+
+
+ax = data.plot(kind = 'line', x = xT, y = [yT,'Average'])
+ax.set_xlabel(xT)
+ax.set_ylabel(yT)
+ax.legend(frameon=False)
+
+
+fig = ax.get_figure()
+fig.savefig("testout.png", dpi=1000)
+
+
