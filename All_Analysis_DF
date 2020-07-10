@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jul  6 18:40:19 2020
+
+@author: joe
+"""
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import glob
+import re
+
+
+FILES = glob.glob("*.xvg")
+
+print(FILES)
+comments = []
+
+for fi in FILES:
+    with open(fi,"r") as f:
+        data = f.read()
+
+    coms2 = re.findall(r"@.*", data)
+    regex = re.compile('@ s.* legend')
+    coms3 = [string for string in coms2 if re.match(regex, string)]
+    comments.append(coms3)
+    
+
+    data = re.sub(r'#.*', "", data)
+    data = re.sub(r'@.*', "", data)
+
+    fo = "Processed_" + fi + ".txt"
+   
+    with open(fo, "w") as f:
+        f.write(data)
+        
+
+
+
+
+FILES = glob.glob("*.txt")
+
+xT = "Time (picoseconds)"
+y1 = "Y1"
+y2 = "Y2"
+y3 = "Y3"
+y4 = "Y4"
+
+dfs = [pd.read_csv(filename, sep="\s+", names=[xT, y1, y2, y3, y4]) for filename in FILES]
+
+for dataframe, filename in zip(dfs, FILES):
+    dataframe['filename'] = filename
+
+#print (dfs)
+dfx = []
+for dataframe in dfs:
+    df = dataframe.dropna(axis=1)
+    dfx.append(df)
+#print(dfx)
+
+
+print(comments[0])
+
+
+l = len(comments)
+print (l)
+for i in comments:
+    x = len(i)
+    print("length of list in comments", x)
+    
+
+
+
+
+
+
+
+'''
+for i in dfx:
+    i['Average'] = i[y1].rolling(100).mean()
+
+plt.figure()
+dfx[5].plot(x= xT, y =[ y1, 'Average'])
+
+
+print(dfx)
+'''
+
+
+'''
+xT = "Time (picoseconds)"
+yT = "Potential (kJ/mol)" 
+
+INPUT_F = "Potential_0.xvg"
+
+data = pd.read_csv(INPUT_F, sep="\s+", skiprows=24, names = [xT, yT], engine="python")
+
+data['Average'] = data[yT].rolling(100).mean()
+#data['SD+'] = data['Average'] + data[yT].rolling(10).std()
+#data['SD-'] = data['Average'] - data[yT].rolling(10).std()
+print(data.head())
+
+'''
