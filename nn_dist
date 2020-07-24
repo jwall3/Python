@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jul 20 18:30:22 2020
+
+@author: joe
+"""
+
+##############################################################################
+
+########                         INPUT FILES                          ########
+
+##############################################################################
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+engine ="python"
+
+
+INPUT_F = 'NP_DISTANCES.txt'
+
+xT = "SG"
+
+E2E = "SGN"
+
+yT = "Distance from SG (nm)"
+
+yTx = "AU"
+
+yTy = "AUN"
+
+
+data = pd.read_csv(INPUT_F, sep=",", skiprows=1, names = [xT,E2E, yT, yTx, yTy], engine="python")
+
+df = pd.DataFrame(data[yT])
+print(df)
+
+ax = df.plot(kind = "kde",y = [yT])
+#sns.distplot(a= yT)
+ax.set_xlabel("Distance (nm)")
+
+fig = ax.get_figure()
+
+fig.savefig("NP_DISTANCES.png", dpi=500)
