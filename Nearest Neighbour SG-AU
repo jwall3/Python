@@ -14,7 +14,7 @@ from scipy.spatial import KDTree
 
 lines = []
 
-with open ('TESTPEP.gro') as f:
+with open ('TESTPEP_400.gro') as f:
     for num, line in enumerate(f, 1):
         line = [line.rstrip('\n')]
         lines.append(line)
@@ -27,12 +27,14 @@ lines.pop(0);lines.pop(0);lines.pop(-1)
 
 l = []
 for n,v in enumerate(lines):
+
     indices = [0,5,8,12,15,20,22,28,30,36,38,44]
     p = (v[0])
     parts = [p[i:j] for i,j in zip(indices, indices[1:]+[None])]
     #print(parts)
     value = []
-    value.append(int(n+1))
+    #value.append(n)
+    value.append(int(n))
     value.append(str(parts[1]))
     value.append(str(parts[3]))
     value.append(float(parts[6]))
@@ -45,14 +47,12 @@ for n,v in enumerate(lines):
 
 df = pd.DataFrame(l)
 df.columns = ['Index', 'MolName', 'AtomName', 'x', 'y', 'z']
-
+print(df)
 ## Make a new DataFrame for each AtomType, add all to Dict.
 
 Atom_Dict = dict(tuple(df.groupby("AtomName")))
 
-#print(Atom_Dict)
-
-## Make new DF called SurfaceAtoms of just surface gold.
+## Make new DF called SurfaceAtoms of just surface gold e.g. R is greater than 6.5.
 
 AU = Atom_Dict["AUB"]
 Pythag = []
@@ -70,43 +70,75 @@ for index, row in AU.iterrows():
     else:
         continue
   
-    
+## From SA arrary make Surface Atoms df and add column Pythag = distance from [0 0 0]  
 SurfaceAtoms = pd.DataFrame(SA)
 SurfaceAtoms["Pythag"] = Pythag
-#print(SurfaceAtoms)
-
 
 SAxyz = SurfaceAtoms[["x","y","z"]].to_numpy()
 
-#print(SAxyz)
+## Using a numpy array for x, y, z create the KDtree to be searched. 
 
 k = KDTree(SAxyz)
-
-pts = np.array([[7, 7, 7]])
-print(k.query(pts[0]))
-
 kout = []
+
+## Now find the SG df from the dict. 
+
 SG = Atom_Dict[" SG"]
 
+## Create a txt file with header. 
 with open ("DISTANCES.txt", "w") as f:
     f.write("ATOM, INDEX, DISTANCE, ATOM, INDEX \n")
 
+## For each SG atom, strip ine and find x, y, z and index. 
+## pt = the SG x,y,z to find NN from the KDtree of AU atoms. 
+## d = the actual search and returns a distance and a value for location.
 for index, row in SG.iterrows():
     LINE = []
     SGx = float(row['x'])
     SGy = float(row['y'])
     SGz = float(row['z'])
+    SGindex = int(row['Index'])
     
     pt = np.array([[SGx, SGy, SGz]]) 
     LINE.append("SG")
-    LINE.append(index)
+
+    LINE.append(SGindex)
+    
+    #LINE.append(SGx)
+    #LINE.append(SGy)
+    #LINE.append(SGz)    
+
     d = ((k.query(pt[0])))
+    ## Append the distance from SG to NN AUB.
     LINE.append(d[0])
-    LINE.append("AU")    
-    LINE.append(d[1])
+    LINE.append("AUB")    
+    
+    ## i is the location. Use this to return the orignial AUB data
+    ## seperate into x,y,z
+    i = (d[1])
+    AUxyz = (k.data[i])
+    AUx = (AUxyz[0])
+    AUy = (AUxyz[1])    
+    AUz = (AUxyz[2])
+    
+    #LINE.append(AUx)
+    #LINE.append(AUy)
+    #LINE.append(AUz)
+    
+    
+    ## Use AUB's x,y,z to fidn index from df and print this. 
+    
+    AI=AU.loc[(AU['x'] == AUx) & (AU['y'] == AUy) & (AU['z'] == AUz)]
+    Indi = AI["Index"]
+    IND = Indi.to_numpy()    
+    LINE.append(IND[0])
     print(LINE)
     line = str(LINE)
+    ## Write output to file. 
     with open ("DISTANCES.txt", "a") as f:
         f.write(line + "\n")
- 
+
+######## NEXT THIS SHOULD BE PLUGGED INTO NP CREATION SCRIPT TO ALLOW A SET DISTANCE OF 0.3nm BETWEEN AU AND SG.
+
+
 
