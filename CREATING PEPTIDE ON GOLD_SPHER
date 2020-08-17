@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jan 20 11:09:09 2020
+Created on Sun Jul 26 12:01:51 2020
+
 @author: joe
 """
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Dec 10 14:21:21 2019
-@author: joe
-"""
+import numpy as np
+import pandas as pd
+import math
+from scipy.spatial import KDTree
+
 ###############################################################################
 
 #FUNCTIONS FROM PAPER
 
 ###############################################################################  
 
-import math
+
 
 #Creates the spherical lines
 
@@ -172,7 +172,7 @@ FNO = "TESTPEP.gro"
 NUMPEPT = 400
 SIZE = 14
 FileName = "TEST \n"
-FileLen = 439863
+FileLen = 288064
 ###############################################################################
 
 #RUNNING
@@ -181,7 +181,7 @@ FileLen = 439863
 
 
 with open ("au-cubic.gro", "r") as f:
-    with open (FNO, "a") as fo:
+    with open (FNO, "w") as fo:
         fo.write(FileName)
         fo.write("%5s \n" %(FileLen))
         ln = 0
@@ -190,7 +190,7 @@ with open ("au-cubic.gro", "r") as f:
             if ln < 2:
                 ln+=1
             elif ln > 5627880:
-                exit
+                break
             else:
                 col = line.split()                
                 pp = col[0]
@@ -222,97 +222,359 @@ xyz(1)
 YPOINTS = points
 xyz(2)
 ZPOINTS = points
+
+### X Y Z POINTS IS THE POS OF SG if SG  0 0 0.
+### Need to make x, y, z to NN AUB = 0.3
+
  
+print("XP",XPOINTS)
 
-#split(302)
-c1 = 0
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
 
-for v in XPOINTS:
-    if -8 < float(XPOINTS[c1]):
-        split(302, "peptide.gro")
-        OS  = [7,0,0]
-        OSf = [XPOINTS[c1], YPOINTS[c1], ZPOINTS[c1]]
-        CPosf = CP(OS, OSf)
-        Nosf = NO(CPosf)
-        k = DIV(CPosf,Nosf)
-        thetaprod = (DP(OS, OSf))/ (NO(OS) * NO(OSf))
-        theta = math.acos(thetaprod)
-        #print("PSOSY",XPOINTS[c1])
-        c2=0
-        for v in X_Coor:
-            with open (FNO, "a") as f:
-                xcoor = float(X_Coor[c2])+7
-                ycoor = float(Y_Coor[c2])
-                zcoor = float(Z_Coor[c2])
-                OA = [xcoor, ycoor, zcoor]
-                SA = MINUS(OA, OS)
-                SfAf1 = MULTI(SA,math.cos(theta))
-    
-                SfAf2_1 = MULTI(SA,math.sin(theta))
-                SfAf2_2 = CP(k,SfAf2_1)
-               
-                SfAf3_1 = DP(k,SA)
-                SfAf3_2 = MULTI(k, SfAf3_1)
-                SfAf3_3 = MULTI(SfAf3_2, (1-math.cos(theta)))
-    
-                SfAf_pre = PLUS(SfAf3_3, SfAf2_2)
-                SfAf = PLUS(SfAf_pre, SfAf1)
-                
-                OAf = PLUS(OSf, SfAf)
-    
-                PN = (Pep_Name[c2])
-                ANa = (Atom_Name[c2])
-                ANu = (Atom_Number[c2])
-                x = float(OAf[0])
-                y = float(OAf[1])
-                z = float(OAf[2])           
-                f.write("%8s%7s%5d%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z,0,0,0))
-                #print(XPOINTS[c1])
-            c2+=1
-        c1+=1
+lines = []
 
+with open (FNO, "r") as f:
+    for num, line in enumerate(f, 1):
+        line = [line.rstrip('\n')]
+        lines.append(line)
+        
+## Remove the header
+        
+lines.pop(0);lines.pop(0)
+
+## For each line in lines split it to th seperate parts.
+
+l = []
+for n,v in enumerate(lines):
+
+    indices = [0,5,8,12,15,20,22,28,30,36,38,44]
+    p = (v[0])
+    parts = [p[i:j] for i,j in zip(indices, indices[1:]+[None])]
+    #print(parts)
+    value = []
+    #value.append(n)
+    value.append(int(n))
+    value.append(str(parts[1]))
+    value.append(str(parts[3]))
+    value.append(float(parts[6]))
+    value.append(float(parts[8]))
+    value.append(float(parts[10]))
+    #print(value)
+    l.append(value)
+
+## Creat the dataframe from the split. 
+
+df = pd.DataFrame(l)
+df.columns = ['Index', 'MolName', 'AtomName', 'x', 'y', 'z']
+print(df)
+## Make a new DataFrame for each AtomType, add all to Dict.
+
+Atom_Dict = dict(tuple(df.groupby("AtomName")))
+
+#print(Atom_Dict)
+
+## Make new DF called SurfaceAtoms of just surface gold.
+
+AU = Atom_Dict[" AU"]
+Pythag = []
+SA = []
+
+
+for index, row in AU.iterrows():
+    x = float(row['x'])
+    y = float(row['y'])
+    z = float(row['z'])
+    pyth = (math.sqrt(x**2+y**2+z**2))
+    if pyth > 6.5:
+        SA.append(row)
+        Pythag.append(pyth) 
     else:
-        split(302, "peptide_180.gro")
-        OS  = [-7,0,0]
-        OSf = [XPOINTS[c1], YPOINTS[c1], ZPOINTS[c1]]
-        CPosf = CP(OS, OSf)
-        Nosf = NO(CPosf)
-        k = DIV(CPosf,Nosf)
-        thetaprod = (DP(OS, OSf))/ (NO(OS) * NO(OSf))
-        theta = math.acos(thetaprod)
-        #print("NEGGIES",XPOINTS[c1])
-        c2=0
-        for v in X_Coor:
-            with open (FNO, "a") as f:
-                xcoor = float(X_Coor[c2])-7
-                ycoor = float(Y_Coor[c2])
-                zcoor = float(Z_Coor[c2])
-                OA = [xcoor, ycoor, zcoor]
-                SA = MINUS(OA, OS)
-                SfAf1 = MULTI(SA,math.cos(theta))
-    
-                SfAf2_1 = MULTI(SA,math.sin(theta))
-                SfAf2_2 = CP(k,SfAf2_1)
-               
-                SfAf3_1 = DP(k,SA)
-                SfAf3_2 = MULTI(k, SfAf3_1)
-                SfAf3_3 = MULTI(SfAf3_2, (1-math.cos(theta)))
-    
-                SfAf_pre = PLUS(SfAf3_3, SfAf2_2)
-                SfAf = PLUS(SfAf_pre, SfAf1)
-                
-                OAf = PLUS(OSf, SfAf)
-    
-                PN = (Pep_Name[c2])
-                ANa = (Atom_Name[c2])
-                ANu = (Atom_Number[c2])
-                x = float(OAf[0])
-                y = float(OAf[1])
-                z = float(OAf[2])           
-                f.write("%8s%7s%5d%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z,0,0,0))
+        continue
+  
+  
+SurfaceAtoms = pd.DataFrame(SA)
+SurfaceAtoms["Pythag"] = Pythag
+#print(SurfaceAtoms)
 
-            c2+=1
-        c1+=1
+SAxyz = SurfaceAtoms[["x","y","z"]].to_numpy()
+
+#print(SAxyz)
+
+kd = KDTree(SAxyz)
+kout = []
+print(kd.data)
+c = 0
+Ax = []
+Ay = []
+Az = []
+
+
+NNDISTANCES = []
+for v in XPOINTS:
+    LINE = []
+    pt = np.array([[XPOINTS[c], YPOINTS[c], ZPOINTS[c]]])
+
+    d = kd.query(pt[0])
+    i = (d[1])
+    AUxyz = (kd.data[i])
+    Ax.append(AUxyz[0])
+    Ay.append(AUxyz[1])
+    Az.append(AUxyz[2])
+
+    NNDISTANCES.append(d[0])   
+    line = str(LINE)
+
+    c+=1
+
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+
+
+
+c1 = 0
+#the points for sulfur 
+for v in NNDISTANCES:
+    #The lengths D = desired NN, nn is current, we want d
+    D = 0.3
+    nn = v 
+    
+    #The poitns 00 is zero, AU is the NNgold. So is the current Sulfur pos.
+    #Sx is an arbitary point along the axis of 00,S1 used to calc theta.
+    OO = [0,0,0]
+    AU = [Ax[c1],Ay[c1], Az[c1]]
+    So = [XPOINTS[c1], YPOINTS[c1], ZPOINTS[c1]]
+    
+    t_v = 1
+    V = MINUS(So,OO)
+    VN = NO(V)
+    U = [((V[0])/VN),((V[1])/VN),((V[2])/VN)]
+    DU = MULTI(U,t_v)
+    Sx = PLUS(So,DU)
+    
+    #Calculating angle Sx So Au. Note the vectors of points So - point.
+    AuSo = MINUS(So, AU)
+    SxSo = MINUS(So, Sx)
+    
+    AuSoSxSo = DP(AuSo, SxSo)
+    NOAuSo = NO(AuSo)
+    NOSxSo = NO(SxSo)
+    
+    P = (NOAuSo * NOSxSo)
+    BRA = (AuSoSxSo/P)    
+    AngleSo = math.acos(BRA)
+    
+    #Calculate AngleS1    
+    AngleS1 = math.sin((nn*(math.sin(AngleSo)))/D)
+    
+    #Caculate AngleAU
+    AngleAU = math.pi - AngleS1 - AngleSo
+    d = ((D*(math.sin(AngleAU)))/(math.sin(AngleSo)))
+    
+    #Adding d to So along the axis.
+    V = MINUS(So,OO)    
+    VN = NO(V)
+    U = [((V[0])/VN),((V[1])/VN),((V[2])/VN)]
+    DU = MULTI(U,d)    
+    XYZ_NEW = PLUS(So,DU)
+        
+    #print("Change",(NO(XYZ_NEW)-(NO(So))))
+
+    #Now rotate each point on the peptide to the appropriate pos.
+    split(301, "peptide.gro")
+    OS  = [7,0,0]
+    #OSf = [XPOINTS[c1], YPOINTS[c1], ZPOINTS[c1]]
+    
+    OSf = (XYZ_NEW)
+    CPosf = CP(OS, OSf)
+    Nosf = NO(CPosf)
+    k = DIV(CPosf,Nosf)
+    #print(k)
+    thetaprod = (DP(OS, OSf))/ (NO(OS) * NO(OSf))
+    theta = math.acos(thetaprod)
+    #print("PSOSY",XPOINTS[c1])
+    c2=0
+
+    
+    #the peptide points
+    for v in X_Coor:
+        with open (FNO, "a") as f:
+            xcoor = float(X_Coor[c2])+7
+            ycoor = float(Y_Coor[c2])
+            zcoor = float(Z_Coor[c2])
+            OA = [xcoor, ycoor, zcoor]
+            SA = MINUS(OA, OS)
+            SfAf1 = MULTI(SA,math.cos(theta))
+
+            SfAf2_1 = MULTI(SA,math.sin(theta))
+            SfAf2_2 = CP(k,SfAf2_1)
+           
+            SfAf3_1 = DP(k,SA)
+            SfAf3_2 = MULTI(k, SfAf3_1)
+            SfAf3_3 = MULTI(SfAf3_2, (1-math.cos(theta)))
+
+            SfAf_pre = PLUS(SfAf3_3, SfAf2_2)
+            SfAf = PLUS(SfAf_pre, SfAf1)
+            
+            OAf = PLUS(OSf, SfAf)
+
+            PN = (Pep_Name[c2])
+            ANa = (Atom_Name[c2])
+            ANu = (Atom_Number[c2])
+            x = float(OAf[0])
+            y = float(OAf[1])
+            z = float(OAf[2])           
+            f.write("%8s%7s%5d%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f \n" % (PN, ANa, c2,x,y,z,0,0,0))
+            #print(XPOINTS[c1])
+        c2+=1
+    c1+=1
+
 
 with open (FNO, "a") as f:
-    f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))     
+    f.write("%10.5f%10.5f%10.5f \n" % (2,2,2))    
+    
+##############################################################################
+##############################################################################
+#############################  THE NEAREST NEIGHBOUR  ########################
+##############################################################################
+##############################################################################
+##############################################################################
+   
+    
+import numpy as np
+import pandas as pd
+import math
+from scipy.spatial import KDTree
+## First open the file and strip the lines to list "lines".
+
+lines = []
+
+with open ('TESTPEP.gro') as f:
+    for num, line in enumerate(f, 1):
+        line = [line.rstrip('\n')]
+        lines.append(line)
+
+## Remove the header and the end.
+        
+lines.pop(0);lines.pop(0);lines.pop(-1)
+
+## For each line in lines split it to th seperate parts.
+
+l = []
+for n,v in enumerate(lines):
+
+    indices = [0,5,8,12,15,20,22,28,30,36,38,44]
+    p = (v[0])
+    parts = [p[i:j] for i,j in zip(indices, indices[1:]+[None])]
+    #print(parts)
+    value = []
+    #value.append(n)
+    value.append(int(n))
+    value.append(str(parts[1]))
+    value.append(str(parts[3]))
+    value.append(float(parts[6]))
+    value.append(float(parts[8]))
+    value.append(float(parts[10]))
+    #print(value)
+    l.append(value)
+
+## Creat the dataframe from the split. 
+
+df = pd.DataFrame(l)
+df.columns = ['Index', 'MolName', 'AtomName', 'x', 'y', 'z']
+#print(df)
+## Make a new DataFrame for each AtomType, add all to Dict.
+
+Atom_Dict = dict(tuple(df.groupby("AtomName")))
+
+#print(Atom_Dict)
+
+## Make new DF called SurfaceAtoms of just surface gold.
+
+AU = Atom_Dict[" AU"]
+Pythag = []
+SA = []
+
+
+for index, row in AU.iterrows():
+    x = float(row['x'])
+    y = float(row['y'])
+    z = float(row['z'])
+    pyth = (math.sqrt(x**2+y**2+z**2))
+    if pyth > 6.5:
+        SA.append(row)
+        Pythag.append(pyth) 
+    else:
+        continue
+  
+  
+SurfaceAtoms = pd.DataFrame(SA)
+SurfaceAtoms["Pythag"] = Pythag
+#print(SurfaceAtoms)
+
+SAxyz = SurfaceAtoms[["x","y","z"]].to_numpy()
+
+#print(SAxyz)
+
+k = KDTree(SAxyz)
+kout = []
+#print(k.data)
+
+#the SULUFRS x,y,z 
+
+SG = Atom_Dict[" SG"]
+
+with open ("DISTANCES.txt", "w") as f:
+    f.write("ATOM, INDEX, DISTANCE, ATOM, INDEX \n")
+    
+for index, row in SG.iterrows():
+    LINE = []
+    SGx = float(row['x'])
+    SGy = float(row['y'])
+    SGz = float(row['z'])
+    SGindex = int(row['Index'])
+    
+    pt = np.array([[SGx, SGy, SGz]]) 
+    LINE.append("SG")
+
+    LINE.append(SGindex)
+    
+    #LINE.append(SGx)
+    #LINE.append(SGy)
+    #LINE.append(SGz)    
+
+    d = ((k.query(pt[0])))
+
+    LINE.append(d[0])
+    LINE.append("AUB")    
+    
+    
+    i = (d[1])
+    AUxyz = (k.data[i])
+    AUx = (AUxyz[0])
+    AUy = (AUxyz[1])    
+    AUz = (AUxyz[2])
+    
+    #LINE.append(AUx)
+    #LINE.append(AUy)
+    #LINE.append(AUz)
+    
+   
+    AI=AU.loc[(AU['x'] == AUx) & (AU['y'] == AUy) & (AU['z'] == AUz)]
+    Indi = AI["Index"]
+    IND = Indi.to_numpy()    
+    LINE.append(IND[0])
+    #print(IND[0])
+    print(LINE)
+    line = str(LINE)
+    with open ("DISTANCES.txt", "a") as f:
+        f.write(line + "\n")    
+    
