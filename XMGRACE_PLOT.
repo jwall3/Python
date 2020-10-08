@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Oct  7 14:24:08 2020
+
+@author: joe
+"""
+###############################################################################
+import numpy as np
+import re
+import matplotlib.pyplot as plt
+###############################################################################
+filename = 'CALNN_energy.xvg'
+###############################################################################
+TITLE = []
+legends = ["Time"]
+xaxisT = []
+yaxisT = []
+data = []
+###############################################################################
+f = open(filename, 'r')
+for line in f:
+
+    if re.compile('@ s(.*) legend').search(line):
+        legends.append(line.split('"')[1])
+    elif re.compile('@    title').search(line):
+        TITLE.append(line.split('"')[1])
+    elif re.compile('@    xaxis').search(line):
+        xaxisT.append(line.split('"')[1])    
+    elif re.compile('@    yaxis').search(line):
+        yaxisT.append(line.split('"')[1])    
+    elif re.compile('#|@').search(line):
+        continue
+    elif line in ['\n', '\r\n']:
+        continue
+    else:
+        v = line.split()
+        v2 = [float(i) for i in v]
+        data.append(v2)
+
+data = np.array(data)
+data = np.transpose(data)
+###############################################################################
+rows = len(data)
+def f1(n1,n2):
+    als = []
+
+    ax = plt.subplot()
+    plt.xlim()
+    plt.ylim()
+    for i in range(n1,n2):
+        ax.scatter(data[0], data[i], c="red")
+        als.append(legends[i])     
+    
+    # Shrink current axis's height by 10% on the bottom
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0 + box.height * 0.01,
+                     box.width, box.height * 0.99])
+    
+    # Put a legend below current axis
+    ax.legend(als,loc='upper center', bbox_to_anchor=(0.5, -0.05),
+              fancybox=False, shadow=True, ncol=5)
+    plt.show()
+
+
+for value in range(0, rows):
+    f1(value, value+1)
