@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Oct  7 14:24:08 2020
+
+@author: joe
+"""
+###############################################################################
+import numpy as np
+import re
+import matplotlib.pyplot as plt
+###############################################################################
+filename1 = 'NNLAC_energy.xvg' #red
+filename2 = 'CALNN_energy.xvg' #black
+filename3 = 'NNLAC_OO_energy.xvg' #blue
+###############################################################################
+TITLE1 = []
+legends1 = ["Time"]
+xaxisT1 = []
+yaxisT1 = []
+data1 = []
+
+TITLE2 = []
+legends2 = ["Time"]
+xaxisT2 = []
+yaxisT2 = []
+data2 = []
+
+TITLE3 = []
+legends3 = ["Time"]
+xaxisT3 = []
+yaxisT3 = []
+data3 = []
+
+###############################################################################
+f = open(filename1, 'r')
+for line in f:
+
+    if re.compile('@ s(.*) legend').search(line):
+        legends1.append(line.split('"')[1])
+    elif re.compile('@    title').search(line):
+        TITLE1.append(line.split('"')[1])
+    elif re.compile('@    xaxis').search(line):
+        xaxisT1.append(line.split('"')[1])    
+    elif re.compile('@    yaxis').search(line):
+        yaxisT1.append(line.split('"')[1])    
+    elif re.compile('#|@').search(line):
+        continue
+    elif line in ['\n', '\r\n']:
+        continue
+    else:
+        v = line.split()
+        v2 = [float(i) for i in v]
+        data1.append(v2)
+
+data1 = np.array(data1)
+data1 = np.transpose(data1)
+###############################################################################
+f = open(filename2, 'r')
+for line in f:
+
+    if re.compile('@ s(.*) legend').search(line):
+        legends2.append(line.split('"')[1])
+    elif re.compile('@    title').search(line):
+        TITLE2.append(line.split('"')[1])
+    elif re.compile('@    xaxis').search(line):
+        xaxisT2.append(line.split('"')[1])    
+    elif re.compile('@    yaxis').search(line):
+        yaxisT2.append(line.split('"')[1])    
+    elif re.compile('#|@').search(line):
+        continue
+    elif line in ['\n', '\r\n']:
+        continue
+    else:
+        v = line.split()
+        v2 = [float(i) for i in v]
+        data2.append(v2)
+
+data2 = np.array(data2)
+data2 = np.transpose(data2)
+###############################################################################
+f = open(filename3, 'r')
+for line in f:
+
+    if re.compile('@ s(.*) legend').search(line):
+        legends3.append(line.split('"')[1])
+    elif re.compile('@    title').search(line):
+        TITLE3.append(line.split('"')[1])
+    elif re.compile('@    xaxis').search(line):
+        xaxisT3.append(line.split('"')[1])    
+    elif re.compile('@    yaxis').search(line):
+        yaxisT3.append(line.split('"')[1])    
+    elif re.compile('#|@').search(line):
+        continue
+    elif line in ['\n', '\r\n']:
+        continue
+    else:
+        v = line.split()
+        v2 = [float(i) for i in v]
+        data3.append(v2)
+
+data3 = np.array(data3)
+data3 = np.transpose(data3)
+
+###############################################################################
+
+rows = len(data1)
+def f1(n1,n2):
+    als1 = ["NNLAC_COOH", "CALNN", "NNLAC_COOH"]
+    
+    
+    ax = plt.subplot()
+    plt.xlim()
+    plt.ylim()
+
+    for i in range(n1,n2):
+        ax.set_title(legends1[i])
+
+        ax.scatter(data1[0], data1[i], c="red", s=0.75)
+        ax.scatter(data2[0], data2[i], c = "black",s=0.75)
+        ax.scatter(data3[0], data3[i], c = "blue",s=0.75)
+        
+    
+    # Shrink current axis's height by 10% on the bottom
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0 + box.height * 0.01,
+                     box.width, box.height * 0.99])
+    
+    # Put a legend below current axis
+    ax.legend(als1,loc='upper center', bbox_to_anchor=(0.5, -0.05),
+              fancybox=False, shadow=True, ncol=5)
+
+    plt.show()
+
+
+for value in range(0, rows):
+    f1(value, value+1)
