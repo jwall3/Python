@@ -1,19 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Nov  9 16:35:43 2020
+Created on Wed Jul  1 14:27:49 2020
 
 @author: joe
 """
- 
-##############################################################################
-##############################################################################
-#############################  THE NEAREST NEIGHBOUR  ########################
-##############################################################################
-##############################################################################
-##############################################################################
-   
-    
+
 import numpy as np
 import pandas as pd
 import math
@@ -22,7 +14,7 @@ from scipy.spatial import KDTree
 
 lines = []
 
-with open ('md.gro') as f:
+with open ('TESTPEP.gro') as f:
     for num, line in enumerate(f, 1):
         line = [line.rstrip('\n')]
         lines.append(line)
@@ -35,14 +27,12 @@ lines.pop(0);lines.pop(0);lines.pop(-1)
 
 l = []
 for n,v in enumerate(lines):
-
     indices = [0,5,8,12,15,20,22,28,30,36,38,44]
     p = (v[0])
     parts = [p[i:j] for i,j in zip(indices, indices[1:]+[None])]
     #print(parts)
     value = []
-    #value.append(n)
-    value.append(int(n))
+    value.append(int(n+1))
     value.append(str(parts[1]))
     value.append(str(parts[3]))
     value.append(float(parts[6]))
@@ -55,7 +45,7 @@ for n,v in enumerate(lines):
 
 df = pd.DataFrame(l)
 df.columns = ['Index', 'MolName', 'AtomName', 'x', 'y', 'z']
-#print(df)
+print(df)
 ## Make a new DataFrame for each AtomType, add all to Dict.
 
 Atom_Dict = dict(tuple(df.groupby("AtomName")))
@@ -80,65 +70,46 @@ for index, row in AU.iterrows():
     else:
         continue
   
-  
+    
 SurfaceAtoms = pd.DataFrame(SA)
 SurfaceAtoms["Pythag"] = Pythag
 #print(SurfaceAtoms)
+
 
 SAxyz = SurfaceAtoms[["x","y","z"]].to_numpy()
 
 #print(SAxyz)
 
 k = KDTree(SAxyz)
+
+pts = np.array([[7, 7, 7]])
+print(k.query(pts[0]))
+
 kout = []
-#print(k.data)
-
-#the SULUFRS x,y,z 
-
 SG = Atom_Dict[" SG"]
 
 with open ("DISTANCES.txt", "w") as f:
     f.write("ATOM, INDEX, DISTANCE, ATOM, INDEX \n")
-    
+
 for index, row in SG.iterrows():
     LINE = []
     SGx = float(row['x'])
     SGy = float(row['y'])
     SGz = float(row['z'])
-    SGindex = int(row['Index'])
     
     pt = np.array([[SGx, SGy, SGz]]) 
     LINE.append("SG")
-
-    LINE.append(SGindex)
-    
-    #LINE.append(SGx)
-    #LINE.append(SGy)
-    #LINE.append(SGz)    
-
+    LINE.append(index)
     d = ((k.query(pt[0])))
-
+    print(d)
     LINE.append(d[0])
-    LINE.append("AUB")    
-    
-    
-    i = (d[1])
-    AUxyz = (k.data[i])
-    AUx = (AUxyz[0])
-    AUy = (AUxyz[1])    
-    AUz = (AUxyz[2])
-    
-    #LINE.append(AUx)
-    #LINE.append(AUy)
-    #LINE.append(AUz)
-    
-   
-    AI=AU.loc[(AU['x'] == AUx) & (AU['y'] == AUy) & (AU['z'] == AUz)]
-    Indi = AI["Index"]
-    IND = Indi.to_numpy()    
-    LINE.append(IND[0])
-    #print(IND[0])
+    LINE.append("AU")    
+    LINE.append(d[1])
     print(LINE)
     line = str(LINE)
     with open ("DISTANCES.txt", "a") as f:
-        f.write(line + "\n")    
+        f.write(line + "\n")
+ 
+
+
+
