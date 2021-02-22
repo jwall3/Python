@@ -1,0 +1,146 @@
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jul  1 14:27:49 2020
+@author: joe
+"""
+
+import numpy as np
+import pandas as pd
+import math
+from scipy.spatial import KDTree
+
+
+## First open the file and strip the lines to list "lines".
+
+lines = []
+
+with open ('nvt.gro') as f:
+    for num, line in enumerate(f, 1):
+        line = [line.rstrip('\n')]
+        lines.append(line)
+
+## Remove the header and the end.
+        
+lines.pop(0);lines.pop(0);lines.pop(-1)
+
+## For each line in lines split it to th seperate parts.
+
+l = []
+for n,v in enumerate(lines):
+    indices = [0,5,8,12,15,20,22,28,30,36,38,44]
+    p = (v[0])
+    parts = [p[i:j] for i,j in zip(indices, indices[1:]+[None])]
+    #print(parts)
+    value = []
+    value.append(int(n+1))
+    value.append(str(parts[1]))
+    value.append(str(parts[3]))
+    value.append(float(parts[6]))
+    value.append(float(parts[8]))
+    value.append(float(parts[10]))
+    #print(value)
+    l.append(value)
+
+## Creat the dataframe from the split. 
+
+df = pd.DataFrame(l)
+df.columns = ['Index', 'MolName', 'AtomName', 'x', 'y', 'z']
+print(df)
+## Make a new DataFrame for each AtomType, add all to Dict.
+
+Atom_Dict = dict(tuple(df.groupby("AtomName")))
+
+#print(Atom_Dict)
+
+## Make new DF called SurfaceAtoms of just surface gold.
+
+AU = Atom_Dict["AUB"]
+Pythag = []
+SA = []
+
+
+for index, row in AU.iterrows():
+    x = float(row['x'])
+    y = float(row['y'])
+    z = float(row['z'])
+    pyth = (math.sqrt(x**2+y**2+z**2))
+    if pyth > 6.5:
+        SA.append(row)
+        Pythag.append(pyth) 
+    else:
+        continue
+  
+    
+SurfaceAtoms = pd.DataFrame(SA)
+SurfaceAtoms["Pythag"] = Pythag
+#print(SurfaceAtoms)
+
+
+SAxyz = SurfaceAtoms[["x","y","z"]].to_numpy()
+
+#print(SAxyz)
+
+k = KDTree(SAxyz)
+
+pts = np.array([[7, 7, 7]])
+print(k.query(pts[0]))
+
+kout = []
+SG = Atom_Dict[" SG"]
+
+with open ("DISTANCES.txt", "w") as f:
+    f.write("ATOM, INDEX, DISTANCE, ATOM, INDEX \n")
+
+Ind_Remove = []
+
+
+for index, row in SG.iterrows():
+    LINE = []
+    SGx = float(row['x'])
+    SGy = float(row['y'])
+    SGz = float(row['z'])
+    
+    pt = np.array([[SGx, SGy, SGz]]) 
+    LINE.append("SG")
+    LINE.append(index)
+    d = ((k.query(pt[0])))
+    print(d)
+    if d[0] >= 1.2:
+        Ind_Remove.append(index)
+    else:
+        continue
+
+    LINE.append(d[0])
+    LINE.append("AU")    
+    LINE.append(d[1])
+    print(LINE)
+    line = str(LINE)
+    with open ("DISTANCES.txt", "a") as f:
+        f.write(line + "\n")
+          
+
+Line_Remove = [i + 6 for i in Ind_Remove]
+
+Line_Remove = [201740, 209786]
+FL_Remove = [i - 298 for i in Line_Remove]
+FL_SET = set(FL_Remove)
+#print (Line_Remove)
+
+with open ('nvt.gro') as f:
+    lines = f.readlines()
+
+with open("nvt_pr.gro", "w") as f:
+    counter = 0
+    for n,line in enumerate(lines):
+        #print(n)
+        if n in FL_SET:
+            counter +=1
+        elif 0 < counter < 298:
+            counter+=1
+        elif counter == 298:
+            counter = 0
+        else:
+            f.write(line)
+            continue
