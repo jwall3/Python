@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import math
 from scipy.spatial import KDTree
-
+import os
 
 ## First open the file and strip the lines to list "lines".
 
@@ -122,9 +122,10 @@ for index, row in SG.iterrows():
           
 
 Line_Remove = [i + 6 for i in Ind_Remove]
-
-Line_Remove = [201740, 209786]
+print(Line_Remove)
+#Line_Remove = [201740, 209786]
 FL_Remove = [i - 298 for i in Line_Remove]
+
 FL_SET = set(FL_Remove)
 #print (Line_Remove)
 
@@ -144,3 +145,33 @@ with open("nvt_pr.gro", "w") as f:
         else:
             f.write(line)
             continue
+
+###
+#CREATE THE INDEX FILE
+###
+
+#Note - line number > index  = ln - 2
+###
+
+
+## Create Diss.ndx a file of just diss peptides.
+
+with open('Diss.ndx', 'w') as f:
+    f.write("[Dissociated] \n")
+    Atoms_Remove = []
+    for value in Line_Remove:
+        value = value - 2
+        value_end = value + 1
+        value_start = value - 298
+    
+        for i in range (value_start, value_end):
+            f.write(str(i)+" ")
+
+## Combine the Diss.ndx and original ndx with 0 being diss.
+os.system("cat Diss.ndx index.ndx > index2.ndx")
+
+
+
+
+
+
