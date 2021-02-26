@@ -166,6 +166,7 @@ with open('Diss.ndx', 'w') as f:
     
         for i in range (value_start, value_end):
             f.write(str(i)+" ")
+        f.write("\n")
 
 ## Combine the Diss.ndx and original ndx with 0 being diss.
 os.system("cat Diss.ndx index.ndx > index2.ndx")
