@@ -188,7 +188,7 @@ with open('Diss.ndx', 'w') as f:
 ## Combine the Diss.ndx and original ndx with 0 being diss.
 os.system("cat Diss.ndx index.ndx > index2.ndx")
 
-fr = "sed -i \'s/inxtc/" +str(xtcin)+ "/g\' index.bash "fr = "sed -i \'s/outxtc/" +str(xtcout)+ "/g\' index.bash "
+fr = "sed -i \'s/inxtc/" +str(xtcin)+ "/g\' index.bash "
 os.system(fr)
 fr = "sed -i \'s/tpr/" +str(intpr)+ "/g\' index.bash "
 os.system(fr)
