@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Mar  8 12:33:23 2021
-
 @author: joe
 """
 
@@ -14,12 +13,24 @@ from scipy.spatial import KDTree
 import os
 
 #USE NVT OR MD FILES:
+'''
 nvtin = "nvt.gro"
 nvtout = "nvt_pr.gro"
 intpr = "nvt.tpr"
 xtcin = "nvt.xtc"
 xtcout = "nvt_pr.xtc"
+'''
 
+'''
+nvtin = "nvt.gro"
+nvtout = "nvt_pr.gro"
+intpr = "md.tpr"
+xtcin = "md.xtc"
+xtcout = "md_pr.xtc"
+'''
+
+
+nvtin = "nvt.gro"
 
 ## First open the file and strip the lines to list "lines".
 
@@ -102,7 +113,7 @@ SG = Atom_Dict[" SG"]
 with open ("DISTANCES.txt", "w") as f:
     f.write("ATOM, INDEX, DISTANCE, ATOM, INDEX \n")
 
-Ind_Remove = []
+Diss_S_Index = []
 
 
 for index, row in SG.iterrows():
@@ -113,11 +124,11 @@ for index, row in SG.iterrows():
 
     pt = np.array([[SGx, SGy, SGz]])
     LINE.append("SG")
-    LINE.append(index)
+    LINE.append(index + 1)
     d = ((k.query(pt[0])))
     print(d)
-    if d[0] >= 1.2:
-        Ind_Remove.append(index)
+    if d[0] >= 0.5:
+        Diss_S_Index.append(index+1)
     else:
         continue
 
@@ -130,68 +141,44 @@ for index, row in SG.iterrows():
         f.write(line + "\n")
 
 
-Line_Remove = [i + 6 for i in Ind_Remove]
-print(Line_Remove)
-#Line_Remove = [201740, 209786]
-FL_Remove = [i - 298 for i in Line_Remove]
+num_diss = (len(Diss_S_Index))
+num_total = (len(SG))
+Dissociated_Perc = ((num_diss/num_total)*100)
 
-FL_SET = set(FL_Remove)
-#print (Line_Remove)
+print(Diss_S_Index, "sulfur indexs of dissociated")
+print(num_diss, "peptides dissociated")
+print(Dissociated_Perc, "% of peptides have moved further than 0.5 nm from the surface ")
 
-with open (nvtin) as f:
-    lines = f.readlines()
+First_Diss = [i - 294 for i in Diss_S_Index]
+print(First_Diss)
 
-with open(nvtout, "w") as f:
-    counter = 0
-    length = 0
-    for n,line in enumerate(lines):
-        #print(n)
-        if n in FL_SET:
-            counter +=1
-        elif 0 < counter < 298:
-            counter+=1
-        elif counter == 298:
-            counter = 0
-        else:
-            length += 1
-            f.write(line)
-            continue
-print(length)
-print(nvtout)
-
-l = "sed -i \'2s/.*/" +str(length - 3)+ "/g\' "  + nvtout
-
-
-os.system(l)
-###
-#CREATE THE INDEX FILE
-###
-
-#Note - line number > index  = ln - 2
-###
-
-
-## Create Diss.ndx a file of just diss peptides.
+Last_Diss = [i + 297 for i in First_Diss]
+print(Last_Diss)
 
 with open('Diss.ndx', 'w') as f:
     f.write("[Dissociated] \n")
-    Atoms_Remove = []
-    for value in Line_Remove:
-        value = value - 2
-        value_end = value + 1
-        value_start = value - 298
+    c=1
+    for value in First_Diss:
+        for index in range (value, value+297):
+            if c % 15 == 0:
+                f.write(str(index)+ " ")
+                f.write("\n")
+            else:
+                f.write(str(index)+" ")
+            c+=1
+    f.write("\n")
 
-        for i in range (value_start, value_end):
-            f.write(str(i)+" ")
-        f.write("\n")
+print("FINISHED LAH")
+
 
 ## Combine the Diss.ndx and original ndx with 0 being diss.
 os.system("cat Diss.ndx index.ndx > index2.ndx")
-
-fr = "sed -i \'s/inxtc/" +str(xtcin)+ "/g\' index.bash "
+'''
+fr = "sed  \'s/inxtc/" +str(xtcin)+ "/g\' index.bash > indexf.bash"
 os.system(fr)
-fr = "sed -i \'s/tpr/" +str(intpr)+ "/g\' index.bash "
+fr = "sed -i \'s/tpr/" +str(intpr)+ "/g\' indexf.bash"
 os.system(fr)
-fr = "sed -i \'s/outxtc/" +str(xtcout)+ "/g\' index.bash "
+fr = "sed -i \'s/outxtc/" +str(xtcout)+ "/g\' indexf.bash "
 os.system(fr)
+'''
 os.system("bash index.bash")
